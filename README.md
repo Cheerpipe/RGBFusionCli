@@ -60,17 +60,17 @@ Donde:
 - <PROFILE_ID>: Número de perfil de  [Gigabyte's RGB Fusion] que se desea cargar.
 
  **Identificadores de modo:**
-Still = 0;
-Breath = 1;
-Beat = 2;
-MixColor = 3;
-Flash = 4;
-Random = 5;
-Wave = 6;
-Scenes = 7;
-off = 8;
-auto = 9;
-other = 10;
-DFlash = 11;
+- Still = 0;
+- Breath = 1;
+- Beat = 2;
+- MixColor = 3;
+- Flash = 4;
+- Random = 5;
+- Wave = 6;
+- Scenes = 7;
+- off = 8;
+- auto = 9;
+- other = 10;
+- DFlash = 11;
 
 Es importante destacar que no todas las áreas son compatibles con todos los modos. Tendrás que probar y ver que modos funcionan para cada área.
