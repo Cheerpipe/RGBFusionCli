@@ -23,7 +23,7 @@ namespace RGBFusion390SetColor
                         var command = new LedCommand();
                         if (commandParts.Length < 6)
                         {
-                            throw new Exception(message: "Wrong value count in " + arg);
+                            throw new Exception( "Wrong value count in " + arg);
                         }
 
                         if (commandParts.Length >= 6)
@@ -31,7 +31,7 @@ namespace RGBFusion390SetColor
 
                             command.AreaId = sbyte.Parse(commandParts[1]);
                             command.NewMode = sbyte.Parse(commandParts[2]);
-                            command.NewColor = Color.FromRgb(r: byte.Parse(commandParts[3]), g: byte.Parse(commandParts[4]), b: byte.Parse(commandParts[5]));
+                            command.NewColor = Color.FromRgb(byte.Parse(commandParts[3]), byte.Parse(commandParts[4]), byte.Parse(commandParts[5]));
                             command.Bright = 9;
                             command.Speed = 2;
                         }
@@ -67,7 +67,7 @@ namespace RGBFusion390SetColor
                     }
                     catch (Exception)
                     {
-                        MessageBox.Show(messageBoxText: "Wrong --loadprofile: command in LoadProfileCommand: {ex.Message}");
+                        MessageBox.Show("Wrong --loadprofile: command in LoadProfileCommand: {ex.Message}");
                     }
                 }
             }

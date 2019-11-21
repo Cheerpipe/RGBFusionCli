@@ -11,7 +11,7 @@ namespace RGBFusion390SetColor
         [STAThread]
         private static void Main(string[] args)
         {
-            Util.SetPriorityProcessAndThreads(Process.GetCurrentProcess().ProcessName, processPriority: ProcessPriorityClass.Idle, ThreadPriorityLevel.Lowest);
+            Util.SetPriorityProcessAndThreads(Process.GetCurrentProcess().ProcessName, ProcessPriorityClass.Idle, ThreadPriorityLevel.Lowest);
 
             var pipeInterOp = new ArgsPipeInterOp();
             var thisProcess = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Length;
@@ -42,7 +42,7 @@ namespace RGBFusion390SetColor
                 _fusion?.ChangeColorForAreas(CommandLineParser.GetLedCommands(args));
             }
             else if (CommandLineParser.GetAreasCommand(args))
-                MessageBox.Show(messageBoxText: _fusion?.GetAreasReport());
+                MessageBox.Show(_fusion?.GetAreasReport());
             else if (CommandLineParser.StartMusicMode(args))
                 _fusion?.StartMusicMode();
             else if (CommandLineParser.StopMusicMode(args))

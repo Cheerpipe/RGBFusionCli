@@ -26,14 +26,14 @@ namespace RGBFusion390SetColor
             return _ledFun != null && _initialized;
         }
 
-        readonly ManualResetEvent _commandEvent = new ManualResetEvent(initialState: false);
+        readonly ManualResetEvent _commandEvent = new ManualResetEvent(false);
 
         public void LoadProfile(int profileId)
         {
-            _ledFun.Adv_mode_Apply(Area_info: GetAllAreaInfo(profileId), GetAllExtAreaInfo(profileId));
+            _ledFun.Adv_mode_Apply(GetAllAreaInfo(profileId), GetAllExtAreaInfo(profileId));
             do
             {
-                Thread.Sleep(millisecondsTimeout: 10);
+                Thread.Sleep(10);
             }
             while (!_areaChangeApplySuccess);
         }
@@ -51,12 +51,12 @@ namespace RGBFusion390SetColor
                 profileId = _ledFun.Current_Profile;
             }
             var str = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "\\GIGABYTE\\RGBFusion\\Pro", profileId.ToString(), ".xml");
-            var color = CommUI.Int_To_Color(Argb: (uint)CommUI.Get_Default_Color_from_Appcenter());
+            var color = CommUI.Int_To_Color((uint)CommUI.Get_Default_Color_from_Appcenter());
             if (!File.Exists(str))
             {
-                Creative_Profile(proXmlFilePath: str, _ledFun.Get_MB_Area_number(), color, profileName: string.Concat("Profile ", profileId.ToString()));
+                Creative_Profile(str, _ledFun.Get_MB_Area_number(), color, string.Concat("Profile ", profileId.ToString()));
             }
-            return CommUI.Inport_from_xml(str, But_Style: null);
+            return CommUI.Inport_from_xml(str, null);
         }
 
         public static void Creative_Profile(string proXmlFilePath, int areaCount, Color defaultColor, string profileName = "")
@@ -122,7 +122,7 @@ namespace RGBFusion390SetColor
                 patternCombItem.Sel_Item.Background = patternCombItem.Bg_Brush_Solid;
                 patternCombItem.Sel_Item.Content = string.Empty;
                 patternCombItem.But_Args = CommUI.Get_Color_Sceenes_class_From_Brush(patternCombItem.Bg_Brush_Solid);
-                var areaClass = new CommUI.Area_class(patternCombItem, areaInfo.DivsNum, mBut_Style: null)
+                var areaClass = new CommUI.Area_class(patternCombItem, areaInfo.DivsNum, null)
                 {
                     Ext_Area_id = areaInfo.extLDev
                 };
@@ -145,15 +145,15 @@ namespace RGBFusion390SetColor
             }
             var str = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "\\GIGABYTE\\RGBFusion\\ExtPro", profileId.ToString(), ".xml");
             var str1 = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "\\GIGABYTE\\RGBFusion\\TempP.xml");
-            var color = CommUI.Int_To_Color(Argb: (uint)CommUI.Get_Default_Color_from_Appcenter());
+            var color = CommUI.Int_To_Color((uint)CommUI.Get_Default_Color_from_Appcenter());
             if (!File.Exists(str))
             {
-                Creative_Profile_Ext(proXmlFilePath: str, _ledFun.LEd_Layout.Ext_Led_Array, color, profileName: string.Concat("ExProfile ", profileId.ToString()));
-                allExtAreaInfo = CommUI.Inport_from_xml(str, But_Style: null);
+                Creative_Profile_Ext(str, _ledFun.LEd_Layout.Ext_Led_Array, color, string.Concat("ExProfile ", profileId.ToString()));
+                allExtAreaInfo = CommUI.Inport_from_xml(str, null);
                 return allExtAreaInfo;
             }
-            Creative_Profile_Ext(proXmlFilePath: str1, _ledFun.LEd_Layout.Ext_Led_Array, color, profileName: string.Concat("ExProfile ", profileId.ToString()));
-            allExtAreaInfo = ReImport_ExtInfo(orgExtArea: CommUI.Inport_from_xml(str, But_Style: null), newExtArea: CommUI.Inport_from_xml(str1, But_Style: null));
+            Creative_Profile_Ext(str1, _ledFun.LEd_Layout.Ext_Led_Array, color, string.Concat("ExProfile ", profileId.ToString()));
+            allExtAreaInfo = ReImport_ExtInfo(CommUI.Inport_from_xml(str, null), CommUI.Inport_from_xml(str1,  null));
             File.Delete(str1);
             return allExtAreaInfo;
         }
@@ -220,13 +220,13 @@ namespace RGBFusion390SetColor
             patternCombItem.Speed = 2;
             patternCombItem.Type = 0;
 
-            var allAreaInfo = _allAreaInfo.Select(areaInfo => new CommUI.Area_class(patternCombItem, areaInfo.Area_index, mBut_Style: null)).ToList();
+            var allAreaInfo = _allAreaInfo.Select(areaInfo => new CommUI.Area_class(patternCombItem, areaInfo.Area_index, null)).ToList();
 
-            var allExtAreaInfo = _allExtAreaInfo.Select(areaInfo => new CommUI.Area_class(patternCombItem, areaInfo.Area_index, mBut_Style: null) { Ext_Area_id = areaInfo.Ext_Area_id }).ToList();
+            var allExtAreaInfo = _allExtAreaInfo.Select(areaInfo => new CommUI.Area_class(patternCombItem, areaInfo.Area_index, null) { Ext_Area_id = areaInfo.Ext_Area_id }).ToList();
 
             allAreaInfo.AddRange(allExtAreaInfo);
-            _ledFun.Set_Adv_mode(allAreaInfo, Run_Direct: true);
-            Thread.Sleep(millisecondsTimeout: _changeOperationDelay);
+            _ledFun.Set_Adv_mode(allAreaInfo, true);
+            Thread.Sleep(_changeOperationDelay);
         }
 
         public void StartMusicMode()
@@ -269,7 +269,7 @@ namespace RGBFusion390SetColor
                     patternCombItem.Speed = command.Speed;
 
                     patternCombItem.Type = command.NewMode;
-                    var area = new CommUI.Area_class(patternCombItem, command.AreaId, mBut_Style: null);
+                    var area = new CommUI.Area_class(patternCombItem, command.AreaId, null);
 
                     foreach (var extAreaInfo in _allExtAreaInfo.Where(extAreaInfo => extAreaInfo.Area_index == area.Area_index))
                     {
@@ -281,18 +281,22 @@ namespace RGBFusion390SetColor
 
                 if (_commands.Count > 0)
                 {
-                    _ledFun.Set_Sync(false);
-                    _ledFun.Set_Adv_mode(areaInfo, Run_Direct: true);
-                    var requireNonDirectMode = _commands.FindAll(i => i.NewMode > 0).Count > 0;
-                    if (requireNonDirectMode)
+                    //_ledFun.Set_Sync(false);
+                    _ledFun.Set_Adv_mode(areaInfo, true);
+                    //Not required anymore
+                    /*
+                    var requireNonDirectModeAreaInfo = areaInfo.FindAll(i => i.Pattern_info.Type > 0);
+                    if (requireNonDirectModeAreaInfo.Count > 0)
                     {
-                        _ledFun.Set_Adv_mode(areaInfo);
+
+                        _ledFun.Set_Adv_mode(requireNonDirectModeAreaInfo);
                         do
                         {
-                            Thread.Sleep(millisecondsTimeout: 10);
+                            Thread.Sleep( 10);
                         }
                         while (!_areaChangeApplySuccess);
                     }
+                    */
                 }
             }
         }
@@ -336,12 +340,12 @@ namespace RGBFusion390SetColor
 
             _ledFun.Ini_LED_Fun();
 
-           _ledFun = CommUI.Get_Easy_Pattern_color_Key(_ledFun);
+            _ledFun = CommUI.Get_Easy_Pattern_color_Key(_ledFun);
 
             _ledFun.LEd_Layout.Set_Support_Flag();
             do
             {
-                Thread.Sleep(millisecondsTimeout: 10);
+                Thread.Sleep(10);
             }
             while (!_scanDone);
 

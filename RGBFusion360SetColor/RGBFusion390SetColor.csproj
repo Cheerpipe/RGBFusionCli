@@ -63,13 +63,13 @@
   <ItemGroup>
     <Reference Include="LedLib2, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\GIGABYTE\RGBFusion\LedLib2.dll</HintPath>
+      <HintPath>..\..\..\..\Program Files (x86)\RGBFusion\LedLib2.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="SelLEDControl, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\GIGABYTE\RGBFusion\SelLEDControl.dll</HintPath>
+      <HintPath>..\..\..\..\Program Files (x86)\RGBFusion\SelLEDControl.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

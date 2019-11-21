@@ -14,7 +14,7 @@ namespace RGBFusion390SetColor
         {
             GC.Collect(GC.MaxGeneration);
             GC.WaitForPendingFinalizers();
-            SetProcessWorkingSetSize(Process.GetCurrentProcess().Handle,minimumWorkingSetSize: (UIntPtr)0xFFFFFFFF, maximumWorkingSetSize: (UIntPtr)0xFFFFFFFF);
+            SetProcessWorkingSetSize(Process.GetCurrentProcess().Handle,(UIntPtr)0xFFFFFFFF,  (UIntPtr)0xFFFFFFFF);
         }
 
         public static void SetPriorityProcessAndThreads(string nameProcess, ProcessPriorityClass processPriority, ThreadPriorityLevel threadPriorityLevel)
