@@ -10,26 +10,19 @@ using RGBFusion390Sender;
 
 public class RGBFusionNativeDeviceScript
 {
-    public string devicename = "RGB Fusion MB Direct";
+    public string devicename = "RGB Fusion Z390 wrapper";
     public bool enabled = true; //Switch to True, to enable it in Aurora
-	
-	//Mode is passed in R chanel of G5 Keys
-	/*
-		0 = Still
-		1 = Pulse
-		2 = Path
-		3 = Rainbown
-	*/
-	private int mode;
-	private int defaultMode = 2;
-	
     private ArgsPipeInterOp _pipeInterOp = null;
     private Color device_color = Color.Black;
-
+	private int modeDigital = 0;
+	private int modeAnalog = 0;
+	private int modeIntegrated = 0;
+	
     public bool Initialize()
     {
         try
         {
+			//TODO: Check if RGBFusionsetcolor is up and fire if off
             _pipeInterOp = new ArgsPipeInterOp();
             return true;
         }
@@ -41,6 +34,7 @@ public class RGBFusionNativeDeviceScript
     
     public void Reset()
     {
+		//TODO: Maybe restart RGBFusionsetcolor Process?
 		 _pipeInterOp = new ArgsPipeInterOp();
     }
     
@@ -60,10 +54,20 @@ public class RGBFusionNativeDeviceScript
                 {
                     //For example if we're basing our device color on Peripheral colors
                     SendColorToDevice(key.Value, forced);
+					if (modeDigital > 31)
+						modeDigital  = 0;
+
+					if (modeAnalog > 31)
+						modeAnalog  = 0;
+
+					if (modeIntegrated > 31)
+						modeIntegrated  = 0;					
                 }
-				else if(key.Key == DeviceKeys.G5)
+				else if(key.Key == DeviceKeys.G6)
                 {
-					mode = key.Value.R; 
+					modeIntegrated = key.Value.R;					
+					modeAnalog = key.Value.G;
+					modeDigital = key.Value.B;
                 }
             }
             return true;
@@ -80,44 +84,11 @@ public class RGBFusionNativeDeviceScript
         //Check if device's current color is the same, no need to update if they are the same
 		if (_pipeInterOp == null)
 			return;
-	
         if (!device_color.Equals(color) || forced)
         {
-			switch (mode)
-			{
-				case 0: //Still
-					_pipeInterOp.SendArgs(new string[] { string.Format(" --setarea:-1:0:{0}:{1}:{2}", color.R.ToString(), color.G.ToString(), color.B.ToString()) });			
-					break;
-				case 1: //Pulse
-					_pipeInterOp.SendArgs(new string[] { string.Format(" --setarea:-1:1:{0}:{1}:{2}", color.R.ToString(), color.G.ToString(), color.B.ToString()) });			
-					break;
-				case 2: //Path
-					_pipeInterOp.SendArgs(new string[] { string.Format(" --setarea:1:0:{0}:{1}:{2}  --setarea:2:0:{0}:{1}:{2}  --setarea:3:0:{0}:{1}:{2}  --setarea:5:13:{0}:{1}:{2}  --setarea:6:0:{0}:{1}:{2}  --setarea:8:0:{0}:{1}:{2} ", color.R.ToString(), color.G.ToString(), color.B.ToString()) });			
-					break;
-				case 3: //Rainbown
-					_pipeInterOp.SendArgs(new string[] { string.Format("--setarea:0:0:{0}:{1}:{2} --setarea:1:2:{0}:{1}:{2}  --setarea:2:2:{0}:{1}:{2}  --setarea:3:2:{0}:{1}:{2}  --setarea:4:2:{0}:{1}:{2}  --setarea:5:13:{0}:{1}:{2}  --setarea:6:13:{0}:{1}:{2}  --setarea:7:2:{0}:{1}:{2}  --setarea:8:2:{0}:{1}:{2} ", color.R.ToString(), color.G.ToString(), color.B.ToString()) });
-					break;
-				default: 
-					goto case 2; //Path
-					break;
-			  }			
+			_pipeInterOp.SendArgs(new string[] { string.Format(" --setarea:1:{3}:{0}:{1}:{2}  --setarea:2:{3}:{0}:{1}:{2}  --setarea:3:{3}:{0}:{1}:{2} --setarea:5:{5}:{0}:{1}:{2}  --setarea:6:{5}:{0}:{1}:{2}  --setarea:8:{3}:{0}:{1}:{2}", color.R.ToString(), color.G.ToString(), color.B.ToString(), modeIntegrated.ToString(), modeAnalog.ToString(), modeDigital.ToString()) });
 			device_color=color;			
-			Global.logger.LogLine(string.Format("[C# Script] Sent a color, {0} to RGBFusion390SetColor with mode {1}", color, mode));			
+			Global.logger.LogLine(string.Format("[C# Script] Sent a color, {0} to RGBFusion390SetColor with integrated mode {1}, analog mode {2} and digital mode {3}", color, modeIntegrated.ToString(), modeAnalog.ToString(), modeDigital.ToString()));			
         }
 	}
 }
-
-
-/*
-AREAS
-0
-1
-2
-3
-4
-5
-6
-7
-
-
-*/
