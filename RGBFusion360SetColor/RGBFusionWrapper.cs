@@ -153,7 +153,7 @@ namespace RGBFusion390SetColor
                 return allExtAreaInfo;
             }
             Creative_Profile_Ext(str1, _ledFun.LEd_Layout.Ext_Led_Array, color, string.Concat("ExProfile ", profileId.ToString()));
-            allExtAreaInfo = ReImport_ExtInfo(CommUI.Inport_from_xml(str, null), CommUI.Inport_from_xml(str1,  null));
+            allExtAreaInfo = ReImport_ExtInfo(CommUI.Inport_from_xml(str, null), CommUI.Inport_from_xml(str1, null));
             File.Delete(str1);
             return allExtAreaInfo;
         }
@@ -226,7 +226,9 @@ namespace RGBFusion390SetColor
 
             allAreaInfo.AddRange(allExtAreaInfo);
             _ledFun.Set_Adv_mode(allAreaInfo, true);
+            
             Thread.Sleep(_changeOperationDelay);
+            //aplicar areas no directas?
         }
 
         public void StartMusicMode()
@@ -247,6 +249,7 @@ namespace RGBFusion390SetColor
                 _commandEvent.Reset();
 
                 var areaInfo = new List<CommUI.Area_class>();
+                var nonDirectareaInfo = new List<CommUI.Area_class>();
 
                 foreach (var command in _commands)
                 {
@@ -277,26 +280,23 @@ namespace RGBFusion390SetColor
                     }
 
                     areaInfo.Add(area);
+                    if (!command.Direct) nonDirectareaInfo.Add(area);
                 }
 
                 if (_commands.Count > 0)
                 {
-                    //_ledFun.Set_Sync(false);
                     _ledFun.Set_Adv_mode(areaInfo, true);
-                    //Not required anymore
-                    /*
-                    var requireNonDirectModeAreaInfo = areaInfo.FindAll(i => i.Pattern_info.Type > 0);
-                    if (requireNonDirectModeAreaInfo.Count > 0)
+
+                    if (nonDirectareaInfo.Count > 0)
                     {
 
-                        _ledFun.Set_Adv_mode(requireNonDirectModeAreaInfo);
+                        _ledFun.Set_Adv_mode(nonDirectareaInfo, false);
                         do
                         {
                             Thread.Sleep( 10);
                         }
                         while (!_areaChangeApplySuccess);
                     }
-                    */
                 }
             }
         }
@@ -354,7 +354,7 @@ namespace RGBFusion390SetColor
             _ledFun.Led_Ezsetup_Obj.PoweronStatus = 1;
             StopMusicMode();
             _initialized = true;
-            _ledFun.Set_Sync(false);
+            //_ledFun.Set_Sync(false);
             StopMusicMode();
             FillAllAreaInfo();
             Fill_ExtArea_info();
