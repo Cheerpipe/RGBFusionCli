@@ -188,10 +188,14 @@ namespace RGBFusion390SetColor
             initThread.SetApartmentState(ApartmentState.STA);
             initThread.Start();
             initThread.Join();
-            _newChangeThread = new Thread(SetAreas);
-            _newChangeThread.SetApartmentState(ApartmentState.STA);
-            _newChangeThread.Start();
-            _newChangeThread.Join();
+
+            if (_newChangeThread == null)
+            {
+                _newChangeThread = new Thread(SetAreas);
+                _newChangeThread.SetApartmentState(ApartmentState.STA);
+                _newChangeThread.Start();
+                _newChangeThread.Join();
+            }
         }
 
         public void ChangeColorForAreas(List<LedCommand> commands)
@@ -199,6 +203,11 @@ namespace RGBFusion390SetColor
             _commands = commands;
             _commandEvent.Set();
             _commandEvent.Reset();
+        }
+
+        public void Reset()
+        {
+            Init();
         }
 
         public void SetAllAreas(object obj)
@@ -226,7 +235,7 @@ namespace RGBFusion390SetColor
 
             allAreaInfo.AddRange(allExtAreaInfo);
             _ledFun.Set_Adv_mode(allAreaInfo, true);
-            
+
             Thread.Sleep(_changeOperationDelay);
             //aplicar areas no directas?
         }
@@ -293,7 +302,7 @@ namespace RGBFusion390SetColor
                         _ledFun.Set_Adv_mode(nonDirectareaInfo, false);
                         do
                         {
-                            Thread.Sleep( 10);
+                            Thread.Sleep(10);
                         }
                         while (!_areaChangeApplySuccess);
                     }
@@ -330,9 +339,6 @@ namespace RGBFusion390SetColor
 
         private void DoInit()
         {
-            if (_ledFun != null)
-                return;
-
             _ledFun = new Comm_LED_Fun(false);
             _ledFun.Apply_ScanPeriphera_Scuuess += CallBackLedFunApplyScanPeripheralSuccess;
             _ledFun.ApplyEZ_Success += CallBackLedFunApplyEzSuccess;
@@ -354,10 +360,11 @@ namespace RGBFusion390SetColor
             _ledFun.Led_Ezsetup_Obj.PoweronStatus = 1;
             StopMusicMode();
             _initialized = true;
-            //_ledFun.Set_Sync(false);
+            _ledFun.Set_Sync(true);
             StopMusicMode();
             FillAllAreaInfo();
             Fill_ExtArea_info();
+
         }
     }
 }

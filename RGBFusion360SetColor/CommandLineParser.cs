@@ -43,8 +43,8 @@ namespace RGBFusion390SetColor
                             command.Speed = sbyte.Parse(arg.Split(':')[6]);
                             command.Bright = sbyte.Parse(arg.Split(':')[7]);
                         }
-                        if (nonDirectCommand)
-                            command.Direct = false;
+
+                        command.Direct = !nonDirectCommand;
 
                         ledCommands.Add(command);
                     }
@@ -82,6 +82,12 @@ namespace RGBFusion390SetColor
         {
             return args != null && args.Any(s => s.ToLower().Contains("--getareas") || s.ToLower().Contains("--areas"));
         }
+
+        public static bool GetResetCommand(string[] args)
+        {
+            return args != null && args.Any(s => s.ToLower().Contains("--reset"));
+        }
+
 
         public static bool StartMusicMode(string[] args)
         {

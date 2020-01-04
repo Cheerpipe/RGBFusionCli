@@ -33,6 +33,12 @@ namespace RGBFusion390SetColor
             if (_fusion?.IsInitialized() == false)
                 return;
 
+            if (CommandLineParser.GetResetCommand(args))
+            {
+                _fusion?.Reset();
+                return;
+            }
+
             if (CommandLineParser.LoadProfileCommand(args) > 0)
             {
                 _fusion?.LoadProfile(CommandLineParser.LoadProfileCommand(args));
