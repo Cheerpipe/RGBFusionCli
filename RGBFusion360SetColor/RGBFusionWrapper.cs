@@ -17,16 +17,25 @@ namespace RGBFusion390SetColor
         private List<CommUI.Area_class> _allAreaInfo;
         private List<CommUI.Area_class> _allExtAreaInfo;
         private List<LedCommand> _commands;
-        private Thread _newChangeThread;
-        private readonly sbyte _changeOperationDelay = 60;
         private bool _initialized;
+
+        private Thread _FasterRingCommandsThread;
+        private Thread _NormalRingCommandsThread;
+        private Thread _SlowRingCommandsThread;
+
+        private List<CommUI.Area_class> FastRingAreaInfoCommands = new List<CommUI.Area_class>();
+        private List<CommUI.Area_class> NormalRingAreaInfoCommands = new List<CommUI.Area_class>();
+        private List<CommUI.Area_class> SlowRingAreaInfoCommands = new List<CommUI.Area_class>();
+        //private nonDirectareaInfoCommands = new List<CommUI.Area_class>();
 
         public bool IsInitialized()
         {
             return _ledFun != null && _initialized;
         }
 
-        readonly ManualResetEvent _commandEvent = new ManualResetEvent(false);
+        readonly ManualResetEvent _FasterRingCommandEvent = new ManualResetEvent(false);
+        readonly ManualResetEvent _NormalRingCommandEvent = new ManualResetEvent(false);
+        readonly ManualResetEvent _SlowRingCommandEvent = new ManualResetEvent(false);
 
         public void LoadProfile(int profileId)
         {
@@ -189,20 +198,39 @@ namespace RGBFusion390SetColor
             initThread.Start();
             initThread.Join();
 
-            if (_newChangeThread == null)
-            {
-                _newChangeThread = new Thread(SetAreas);
-                _newChangeThread.SetApartmentState(ApartmentState.STA);
-                _newChangeThread.Start();
-                _newChangeThread.Join();
-            }
+            _FasterRingCommandsThread = new Thread(SetFastRingAreas);
+            _FasterRingCommandsThread.SetApartmentState(ApartmentState.STA);
+            _FasterRingCommandsThread.Start();
+
+            _NormalRingCommandsThread = new Thread(SetNormalRingAreas);
+            _NormalRingCommandsThread.SetApartmentState(ApartmentState.STA);
+            _NormalRingCommandsThread.Start();
+
+            _SlowRingCommandsThread = new Thread(SetSlowRingAreas);
+            _SlowRingCommandsThread.SetApartmentState(ApartmentState.STA);
+            _SlowRingCommandsThread.Start();
+
+            _FasterRingCommandsThread.Join();
+            _NormalRingCommandsThread.Join();
+            _SlowRingCommandsThread.Join();
         }
 
         public void ChangeColorForAreas(List<LedCommand> commands)
         {
             _commands = commands;
-            _commandEvent.Set();
-            _commandEvent.Reset();
+
+            //CreateAreaCommands();
+
+            _FasterRingCommandEvent.Set();
+            _FasterRingCommandEvent.Reset();
+            /* 
+            _NormalRingCommandEvent.Set();
+            _NormalRingCommandEvent.Reset();
+
+            _SlowRingCommandEvent.Set();
+            _SlowRingCommandEvent.Reset();
+         */
+
         }
 
         public void Reset()
@@ -235,9 +263,6 @@ namespace RGBFusion390SetColor
 
             allAreaInfo.AddRange(allExtAreaInfo);
             _ledFun.Set_Adv_mode(allAreaInfo, true);
-
-            Thread.Sleep(_changeOperationDelay);
-            //aplicar areas no directas?
         }
 
         public void StartMusicMode()
@@ -250,62 +275,100 @@ namespace RGBFusion390SetColor
             _ledFun.Stop_music_mode();
         }
 
-        public void SetAreas()
+        private void CreateAreaCommands()
         {
-            while (_newChangeThread.IsAlive)
+
+            if (_commands.Count <= 0)
+                return;
+
+            FastRingAreaInfoCommands.Clear();
+            NormalRingAreaInfoCommands.Clear();
+            SlowRingAreaInfoCommands.Clear();
+
+            foreach (var command in _commands)
             {
-                _commandEvent.WaitOne();
-                _commandEvent.Reset();
 
-                var areaInfo = new List<CommUI.Area_class>();
-                var nonDirectareaInfo = new List<CommUI.Area_class>();
-
-                foreach (var command in _commands)
+                if (command.AreaId == -1)
                 {
-                    if (command.AreaId == -1)
-                    {
-                        SetAllAreas(command.NewColor);
-                        continue;
-                    }
-
-                    var patternCombItem = new CommUI.Pattern_Comb_Item
-                    {
-                        Bg_Brush_Solid = { Color = command.NewColor },
-                        Sel_Item = { Style = null }
-                    };
-                    patternCombItem.Sel_Item.Background = patternCombItem.Bg_Brush_Solid;
-                    patternCombItem.Sel_Item.Content = string.Empty;
-                    patternCombItem.But_Args = CommUI.Get_Color_Sceenes_class_From_Brush(patternCombItem.Bg_Brush_Solid);
-
-                    patternCombItem.Bri = command.Bright;
-                    patternCombItem.Speed = command.Speed;
-
-                    patternCombItem.Type = command.NewMode;
-                    var area = new CommUI.Area_class(patternCombItem, command.AreaId, null);
-
-                    foreach (var extAreaInfo in _allExtAreaInfo.Where(extAreaInfo => extAreaInfo.Area_index == area.Area_index))
-                    {
-                        area.Ext_Area_id = extAreaInfo.Ext_Area_id;
-                    }
-
-                    areaInfo.Add(area);
-                    if (!command.Direct) nonDirectareaInfo.Add(area);
+                    SetAllAreas(command.NewColor);
+                    continue;
                 }
 
-                if (_commands.Count > 0)
+                var patternCombItem = new CommUI.Pattern_Comb_Item
                 {
-                    _ledFun.Set_Adv_mode(areaInfo, true);
+                    Bg_Brush_Solid = { Color = command.NewColor },
+                    Sel_Item = { Style = null }
+                };
 
-                    if (nonDirectareaInfo.Count > 0)
-                    {
+                patternCombItem.Sel_Item.Background = patternCombItem.Bg_Brush_Solid;
+                patternCombItem.Sel_Item.Content = string.Empty;
+                patternCombItem.But_Args = CommUI.Get_Color_Sceenes_class_From_Brush(patternCombItem.Bg_Brush_Solid);
 
-                        _ledFun.Set_Adv_mode(nonDirectareaInfo, false);
-                        do
-                        {
-                            Thread.Sleep(10);
-                        }
-                        while (!_areaChangeApplySuccess);
-                    }
+                patternCombItem.Bri = command.Bright;
+                patternCombItem.Speed = command.Speed;
+
+                patternCombItem.Type = command.NewMode;
+                var area = new CommUI.Area_class(patternCombItem, command.AreaId, null);
+
+                foreach (var extAreaInfo in _allExtAreaInfo.Where(extAreaInfo => extAreaInfo.Area_index == area.Area_index))
+                {
+                    area.Ext_Area_id = extAreaInfo.Ext_Area_id;
+                }
+
+
+                if (area.Ext_Area_id == LedLib2.ExtLedDev.None)
+                    FastRingAreaInfoCommands.Add(area);
+                else if (area.Ext_Area_id == LedLib2.ExtLedDev.Kingston_RAM)
+                    NormalRingAreaInfoCommands.Add(area);
+                else
+                    SlowRingAreaInfoCommands.Add(area);
+            }
+        }
+
+        public void SetFastRingAreas()
+        {
+            while (_FasterRingCommandsThread.IsAlive)
+            {
+                _FasterRingCommandEvent.WaitOne();
+                CreateAreaCommands();
+                _FasterRingCommandEvent.Reset();
+                _NormalRingCommandEvent.Set();
+                _NormalRingCommandEvent.Reset();
+                System.Diagnostics.Debug.WriteLine(FastRingAreaInfoCommands.Count);
+                if (FastRingAreaInfoCommands.Count > 0)
+                {
+                    _ledFun.Set_Adv_mode(FastRingAreaInfoCommands, true);
+                }
+                //Thread.Sleep(100);
+            }
+        }
+
+        public void SetNormalRingAreas()
+        {
+            while (_NormalRingCommandsThread.IsAlive)
+            {
+                _NormalRingCommandEvent.WaitOne();
+                _NormalRingCommandEvent.Reset();
+
+                _SlowRingCommandEvent.Set();
+                _SlowRingCommandEvent.Reset();
+                if (NormalRingAreaInfoCommands.Count > 0)
+                {
+                    _ledFun.Set_Adv_mode(NormalRingAreaInfoCommands, true);
+                }
+            }
+        }
+
+        public void SetSlowRingAreas()
+        {
+            while (_SlowRingCommandsThread.IsAlive)
+            {
+                _SlowRingCommandEvent.WaitOne();
+                _SlowRingCommandEvent.Reset();
+
+                if (SlowRingAreaInfoCommands.Count > 0)
+                {
+                    _ledFun.Set_Adv_mode(SlowRingAreaInfoCommands, true);
                 }
             }
         }
@@ -358,12 +421,10 @@ namespace RGBFusion390SetColor
             _ledFun.Current_Mode = 0; // 1= Advanced 0 = Simple or Ez
 
             _ledFun.Led_Ezsetup_Obj.PoweronStatus = 1;
-            StopMusicMode();
-            _initialized = true;
-            _ledFun.Set_Sync(true);
-            StopMusicMode();
+            //   _ledFun.Set_Sync(false);
             FillAllAreaInfo();
             Fill_ExtArea_info();
+            _initialized = true;
 
         }
     }
