@@ -26,8 +26,8 @@ namespace RGBFusion390SetColor
         private List<CommUI.Area_class> FastRingAreaInfoCommands = new List<CommUI.Area_class>();
         private List<CommUI.Area_class> NormalRingAreaInfoCommands = new List<CommUI.Area_class>();
         private List<CommUI.Area_class> SlowRingAreaInfoCommands = new List<CommUI.Area_class>();
-        //private nonDirectareaInfoCommands = new List<CommUI.Area_class>();
 
+        bool ignoreFlag = false;
         public bool IsInitialized()
         {
             return _ledFun != null && _initialized;
@@ -315,7 +315,6 @@ namespace RGBFusion390SetColor
                     area.Ext_Area_id = extAreaInfo.Ext_Area_id;
                 }
 
-
                 if (area.Ext_Area_id == LedLib2.ExtLedDev.None)
                     FastRingAreaInfoCommands.Add(area);
                 else if (area.Ext_Area_id == LedLib2.ExtLedDev.Kingston_RAM)
@@ -330,16 +329,15 @@ namespace RGBFusion390SetColor
             while (_FasterRingCommandsThread.IsAlive)
             {
                 _FasterRingCommandEvent.WaitOne();
+                //_FasterRingCommandEvent.Reset();
                 CreateAreaCommands();
-                _FasterRingCommandEvent.Reset();
-                _NormalRingCommandEvent.Set();
-                _NormalRingCommandEvent.Reset();
-                System.Diagnostics.Debug.WriteLine(FastRingAreaInfoCommands.Count);
                 if (FastRingAreaInfoCommands.Count > 0)
                 {
                     _ledFun.Set_Adv_mode(FastRingAreaInfoCommands, true);
                 }
-                //Thread.Sleep(100);
+                _FasterRingCommandEvent.Reset();
+                _NormalRingCommandEvent.Set();
+                //_NormalRingCommandEvent.Reset();
             }
         }
 
@@ -348,14 +346,15 @@ namespace RGBFusion390SetColor
             while (_NormalRingCommandsThread.IsAlive)
             {
                 _NormalRingCommandEvent.WaitOne();
-                _NormalRingCommandEvent.Reset();
+                // _NormalRingCommandEvent.Reset();
 
-                _SlowRingCommandEvent.Set();
-                _SlowRingCommandEvent.Reset();
                 if (NormalRingAreaInfoCommands.Count > 0)
                 {
                     _ledFun.Set_Adv_mode(NormalRingAreaInfoCommands, true);
                 }
+                _NormalRingCommandEvent.Reset();
+                _SlowRingCommandEvent.Set();
+                //_SlowRingCommandEvent.Reset();
             }
         }
 
@@ -364,12 +363,15 @@ namespace RGBFusion390SetColor
             while (_SlowRingCommandsThread.IsAlive)
             {
                 _SlowRingCommandEvent.WaitOne();
-                _SlowRingCommandEvent.Reset();
+                //_SlowRingCommandEvent.Reset();
 
                 if (SlowRingAreaInfoCommands.Count > 0)
                 {
-                    _ledFun.Set_Adv_mode(SlowRingAreaInfoCommands, true);
+                    if (!ignoreFlag)
+                        _ledFun.Set_Adv_mode(SlowRingAreaInfoCommands, true);
+                    ignoreFlag = !ignoreFlag;
                 }
+                _SlowRingCommandEvent.Reset();
             }
         }
 
@@ -421,7 +423,7 @@ namespace RGBFusion390SetColor
             _ledFun.Current_Mode = 0; // 1= Advanced 0 = Simple or Ez
 
             _ledFun.Led_Ezsetup_Obj.PoweronStatus = 1;
-            //   _ledFun.Set_Sync(false);
+            _ledFun.Set_Sync(true);
             FillAllAreaInfo();
             Fill_ExtArea_info();
             _initialized = true;
