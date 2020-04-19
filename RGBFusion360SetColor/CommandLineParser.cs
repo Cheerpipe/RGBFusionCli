@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -10,13 +10,15 @@ namespace RGBFusion390SetColor
     {
         public static List<LedCommand> GetLedCommands(string[] args)
         {
+
             List<LedCommand> ledCommands = new List<LedCommand>();
 
             foreach (var arg in args)
             {
-
                 bool directCommand = (arg.ToLower().Contains("--setarea:") || arg.ToLower().Contains("--sa:"));
-                bool nonDirectCommand = (arg.ToLower().Contains("--setareand:") || arg.ToLower().Contains("--sand:"));
+                bool nonDirectCommand = false;
+                if (!directCommand)
+                    nonDirectCommand = (arg.ToLower().Contains("--setareand:") || arg.ToLower().Contains("--sand:"));
 
                 if (directCommand || nonDirectCommand)
                 {
@@ -40,17 +42,16 @@ namespace RGBFusion390SetColor
                         }
                         if (commandParts.Length >= 8)
                         {
-                            command.Speed = sbyte.Parse(arg.Split(':')[6]);
-                            command.Bright = sbyte.Parse(arg.Split(':')[7]);
+                            command.Speed = sbyte.Parse(commandParts[6]);
+                            command.Bright = sbyte.Parse(commandParts[7]);
                         }
 
                         command.Direct = !nonDirectCommand;
-
                         ledCommands.Add(command);
                     }
-                    catch (Exception)
+                    catch (Exception Ex)
                     {
-                        MessageBox.Show(messageBoxText: "Wrong --setarea: command in GetLedCommands: {ex.Message}");
+                        MessageBox.Show(string.Format("Wrong --setarea: command in GetLedCommands: {0}", Ex.ToString()));
                     }
                 }
             }
@@ -81,6 +82,11 @@ namespace RGBFusion390SetColor
         public static bool GetAreasCommand(string[] args)
         {
             return args != null && args.Any(s => s.ToLower().Contains("--getareas") || s.ToLower().Contains("--areas"));
+        }
+
+        public static bool NoInstanceCheck(string[] args)
+        {
+            return args != null && args.Any(s => s.ToLower().Contains("--nocheck") || s.ToLower().Contains("--nc"));
         }
 
         public static bool GetResetCommand(string[] args)
