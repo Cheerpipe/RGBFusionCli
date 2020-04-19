@@ -17,6 +17,9 @@ public class RGBFusionNativeDeviceScript
 	private int modeDigital = 0;
 	private int modeAnalog = 0;
 	private int modeIntegrated = 0;
+	private int modeVGA = 0;	
+	private int modeRAM = 0;		
+	
 	
     public bool Initialize()
     {
@@ -54,20 +57,6 @@ public class RGBFusionNativeDeviceScript
                 {
                     //For example if we're basing our device color on Peripheral colors
                     SendColorToDevice(key.Value, forced);
-					if (modeDigital > 31)
-						modeDigital  = 0;
-
-					if (modeAnalog > 31)
-						modeAnalog  = 0;
-
-					if (modeIntegrated > 31)
-						modeIntegrated  = 0;					
-                }
-				else if(key.Key == DeviceKeys.G6)
-                {
-					modeIntegrated = key.Value.R;					
-					modeAnalog = key.Value.G;
-					modeDigital = key.Value.B;
                 }
             }
             return true;
@@ -81,14 +70,14 @@ public class RGBFusionNativeDeviceScript
     //Custom method to send the color to the device
     private void SendColorToDevice(Color color, bool forced)
     {
-        //Check if device's current color is the same, no need to update if they are the same
 		if (_pipeInterOp == null)
 			return;
+        //Check if device's current color is the same, no need to update if they are the same		
         if (!device_color.Equals(color) || forced)
         {
-			_pipeInterOp.SendArgs(new string[] { string.Format(" --setarea:1:{3}:{0}:{1}:{2}  --setarea:2:{3}:{0}:{1}:{2}  --setarea:3:{3}:{0}:{1}:{2} --setarea:5:{5}:{0}:{1}:{2}  --setarea:6:{5}:{0}:{1}:{2}  --setarea:8:{3}:{0}:{1}:{2}", color.R.ToString(), color.G.ToString(), color.B.ToString(), modeIntegrated.ToString(), modeAnalog.ToString(), modeDigital.ToString()) });
-			device_color=color;			
-			Global.logger.LogLine(string.Format("[C# Script] Sent a color, {0} to RGBFusion390SetColor with integrated mode {1}, analog mode {2} and digital mode {3}", color, modeIntegrated.ToString(), modeAnalog.ToString(), modeDigital.ToString()));			
+			device_color=color;	
+			string command = string.Format(" --sa:1:{3}:{0}:{1}:{2}  --sa:2:{3}:{0}:{1}:{2}  --sa:3:{3}:{0}:{1}:{2} --sa:5:{5}:{0}:{1}:{2} --sa:6:{5}:{0}:{1}:{2}  --sa:8:{6}:{0}:{1}:{2} --sa:9:{7}:{0}:{1}:{2}", Convert.ToInt32(color.R*color.A/255).ToString(), Convert.ToInt32(color.G*color.A/255).ToString(), Convert.ToInt32(color.B*color.A/255).ToString(), 0 , 0, 0, 0 , 0) ;
+			 _pipeInterOp.SendArgs(new string[] { command });
         }
 	}
 }
