@@ -15,7 +15,10 @@ namespace RGBFusion390SetColor
             foreach (var arg in args)
             {
 
-                if (arg.ToLower().Contains("--setarea:") || arg.ToLower().Contains("--sa:"))
+                bool directCommand = (arg.ToLower().Contains("--setarea:") || arg.ToLower().Contains("--sa:"));
+                bool nonDirectCommand = (arg.ToLower().Contains("--setareand:") || arg.ToLower().Contains("--sand:"));
+
+                if (directCommand || nonDirectCommand)
                 {
                     try
                     {
@@ -23,7 +26,7 @@ namespace RGBFusion390SetColor
                         var command = new LedCommand();
                         if (commandParts.Length < 6)
                         {
-                            throw new Exception( "Wrong value count in " + arg);
+                            throw new Exception("Wrong value count in " + arg);
                         }
 
                         if (commandParts.Length >= 6)
@@ -41,6 +44,7 @@ namespace RGBFusion390SetColor
                             command.Bright = sbyte.Parse(arg.Split(':')[7]);
                         }
 
+                        command.Direct = !nonDirectCommand;
 
                         ledCommands.Add(command);
                     }
@@ -78,6 +82,12 @@ namespace RGBFusion390SetColor
         {
             return args != null && args.Any(s => s.ToLower().Contains("--getareas") || s.ToLower().Contains("--areas"));
         }
+
+        public static bool GetResetCommand(string[] args)
+        {
+            return args != null && args.Any(s => s.ToLower().Contains("--reset"));
+        }
+
 
         public static bool StartMusicMode(string[] args)
         {

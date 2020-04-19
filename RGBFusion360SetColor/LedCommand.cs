@@ -12,7 +12,9 @@ namespace RGBFusion390SetColor
         public Color NewColor { get; set; }
         [DefaultValue(5)]
         public sbyte Speed { get; set; }
-        [DefaultValue(9)]
+        [DefaultValue(2)]
         public sbyte Bright { get; set; }
+        [DefaultValue(true)]
+        public bool Direct { get; set; }
     }
 }
