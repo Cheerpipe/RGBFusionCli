@@ -41,9 +41,10 @@ namespace RGBFusion390SetColor
             if (_fusion?.IsInitialized() == false)
                 return;
 
-            if (CommandLineParser.GetLedCommands(args).Count > 0)
+            var _ledCommands = CommandLineParser.GetLedCommands(args);
+            if (_ledCommands.Count > 0)
             {
-                _fusion?.ChangeColorForAreas(CommandLineParser.GetLedCommands(args));
+                _fusion?.ChangeColorForAreas(_ledCommands);
                 return;
             }
             if (CommandLineParser.GetResetCommand(args))
@@ -51,9 +52,10 @@ namespace RGBFusion390SetColor
                 _fusion?.Reset();
                 return;
             }
-            if (CommandLineParser.LoadProfileCommand(args) > 0)
+            int _profileCommandIndex = CommandLineParser.LoadProfileCommand(args);
+            if (_profileCommandIndex > 0)
             {
-                _fusion?.LoadProfile(CommandLineParser.LoadProfileCommand(args));
+                _fusion?.LoadProfile(_profileCommandIndex);
             }
             else if (CommandLineParser.GetAreasCommand(args))
                 MessageBox.Show(_fusion?.GetAreasReport());
