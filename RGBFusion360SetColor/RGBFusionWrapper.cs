@@ -335,7 +335,7 @@ namespace RGBFusion390SetColor
                 {
                     _ledFun.Set_Adv_mode(FastRingAreaInfoCommands, true);
                 }
-                _FasterRingCommandEvent.Reset();
+                //_FasterRingCommandEvent.Reset();
                 _NormalRingCommandEvent.Set();
                 //_NormalRingCommandEvent.Reset();
             }
@@ -352,7 +352,7 @@ namespace RGBFusion390SetColor
                 {
                     _ledFun.Set_Adv_mode(NormalRingAreaInfoCommands, true);
                 }
-                _NormalRingCommandEvent.Reset();
+               // _NormalRingCommandEvent.Reset();
                 _SlowRingCommandEvent.Set();
                 //_SlowRingCommandEvent.Reset();
             }
@@ -371,7 +371,9 @@ namespace RGBFusion390SetColor
                         _ledFun.Set_Adv_mode(SlowRingAreaInfoCommands, true);
                     ignoreFlag = !ignoreFlag;
                 }
+                _FasterRingCommandEvent.Reset();
                 _SlowRingCommandEvent.Reset();
+                _NormalRingCommandEvent.Reset();
             }
         }
 
