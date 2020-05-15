@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29306.81
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{64E1413C-04CA-4FA9-8CA8-170A8C685F17}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RGBFusionCli", "RGBFusionCli\RGBFusionCli.csproj", "{5E84A2C6-169E-4877-A0D7-2BA9AB872E06}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5E84A2C6-169E-4877-A0D7-2BA9AB872E06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E84A2C6-169E-4877-A0D7-2BA9AB872E06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E84A2C6-169E-4877-A0D7-2BA9AB872E06}.Debug|x86.ActiveCfg = Debug|x86
+		{5E84A2C6-169E-4877-A0D7-2BA9AB872E06}.Debug|x86.Build.0 = Debug|x86
+		{5E84A2C6-169E-4877-A0D7-2BA9AB872E06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E84A2C6-169E-4877-A0D7-2BA9AB872E06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E84A2C6-169E-4877-A0D7-2BA9AB872E06}.Release|x86.ActiveCfg = Release|x86
+		{5E84A2C6-169E-4877-A0D7-2BA9AB872E06}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8A4F2E8C-78F3-46C5-B618-09EAB9AFD345}
+	EndGlobalSection
+EndGlobal
