@@ -1,10 +1,10 @@
-# RGBFusion390SetColor
+# RGBFusionCli
 
 ## Descripción
 
-RGBFusion390SetColor es una herramienta muy simple que sirve para cambiar el color, modo, velocidad y brillo de dispositivos compatibles con [Gigabyte's RGB Fusion]
-Para funcionar, `RGBFusion390SetColor` carga e inicializa los componentes internos de [Gigabyte's RGB Fusion] para utilizarlos a modo de HAL debido a que [Gigabyte's RGB Fusion] es capaz de manipular hardware de distintos tipos y marcas.
-Las tareas de inicialización pueden tardar varios segundos. Para evitar que esta demora ocurra cada vez que se aplica un cambio en la iluminación, `RGBFusion390SetColor` inicia sus componentes internos y luego se queda a la espera de comandos enviados por linea de comandos o por un NamedPipe.
+RGBFusionCli es una herramienta muy simple que sirve para cambiar el color, modo, velocidad y brillo de dispositivos compatibles con [Gigabyte's RGB Fusion]
+Para funcionar, `RGBFusionCli` carga e inicializa los componentes internos de [Gigabyte's RGB Fusion] para utilizarlos a modo de HAL debido a que [Gigabyte's RGB Fusion] es capaz de manipular hardware de distintos tipos y marcas.
+Las tareas de inicialización pueden tardar varios segundos. Para evitar que esta demora ocurra cada vez que se aplica un cambio en la iluminación, `RGBFusionCli` inicia sus componentes internos y luego se queda a la espera de comandos enviados por linea de comandos o por un NamedPipe.
 
 ## Modos de uso
 
@@ -24,7 +24,7 @@ Esta aplicación depende de `LedLib2.dll` y `SelLEDControl.dll`, ambos parte de 
 	
 ## Instalación
 
-Esta aplicación no necesita ser instalada. Solo debes copiar `RGBFusion390SetColor.exe` en la carpeta de [Gigabyte's RGB Fusion Application]. Típicamente `C:\Program Files (x86)\GIGABYTE\RGBFusion`.
+Esta aplicación no necesita ser instalada. Solo debes copiar `RGBFusionCli.exe` en la carpeta de [Gigabyte's RGB Fusion Application]. Típicamente `C:\Program Files (x86)\GIGABYTE\RGBFusion`.
 
 
 

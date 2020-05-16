@@ -6,7 +6,7 @@ using System.Threading;
 using System.Windows.Media;
 using SelLEDControl;
 
-namespace RGBFusion390SetColor
+namespace RGBFusionCli
 {
     public class RgbFusion
     {

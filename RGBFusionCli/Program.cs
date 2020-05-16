@@ -8,14 +8,17 @@ using System.Threading;
 using System.Windows;
 
 
-namespace RGBFusion390SetColor
+namespace RGBFusionCli
 {
     internal static class Program
     {
-        private static RgbFusion _fusion;
+        private static RgbFusion _controller;
+        private static Transaction _transaction;
+
         [STAThread]
         private static void Main(string[] args)
         {
+
             var pipeInterOp = new ArgsPipeInterOp();
             var instanceCount = int.MaxValue;
             if (!CommandLineParser.NoInstanceCheck(args))
@@ -31,14 +34,15 @@ namespace RGBFusion390SetColor
 
             Util.SetPriorityProcessAndThreads(Process.GetCurrentProcess().ProcessName, ProcessPriorityClass.Idle, ThreadPriorityLevel.Lowest);
 
-            _fusion = new RgbFusion();
+            _controller = new RgbFusion();
+            _transaction = new Transaction(_controller);
             Util.MinimizeMemory();
             pipeInterOp.StartArgsPipeServer();
             Util.MinimizeMemory();
-            _fusion.Init(false);
+            _controller.Init(false);
             pipeInterOp.SendArgs(args);
             SystemEvents.SessionEnding += SystemEvents_SessionEnding;
-            _fusion.StartListening();
+            _controller.StartListening();
 
         }
 
@@ -63,39 +67,61 @@ namespace RGBFusion390SetColor
 
         public static void Run(string[] args)
         {
-            if (_fusion?.IsInitialized() == false)
+            if (_controller?.IsInitialized() == false)
                 return;
 
             var _ledCommands = CommandLineParser.GetLedCommands(args);
             if (_ledCommands.Count > 0)
             {
-                _fusion?.ChangeColorForAreas(_ledCommands);
+                if (_transaction.TransactioStarted)
+                {
+                    _transaction.TransactionSetZoned(_ledCommands);
+                    return;
+                }
+                _controller?.ChangeColorForAreas(_ledCommands);
                 return;
             }
-            /* Not working right now
-            if (CommandLineParser.GetResetCommand(args))
+
+            int traxMaxAlive = CommandLineParser.GetTransactionStartCommand(args);
+            if (traxMaxAlive > -1)
             {
-                _fusion?.Reset();
+                _transaction.TransactionStart(traxMaxAlive);
                 return;
             }
-            */
+
+            if (CommandLineParser.GetTransactionCommitCommand(args))
+            {
+                try
+
+                {
+                    _transaction.TransactionCommit();
+                }
+                catch //No transaction started
+                { }
+            }
+
+            if (CommandLineParser.GetTransactionCancel(args))
+            {
+                _transaction.TransactionCancel();
+                return;
+            }
 
             if (CommandLineParser.GeShutdownCommand(args))
             {
                 //Shutdown this shit
                 Run(new string[] { "--sa:-1:0:0:0:0" });
                 Thread.Sleep(500);
-                _fusion.Shutdown();
+                _controller.Shutdown();
                 Thread.Sleep(500);
             }
 
             int _profileCommandIndex = CommandLineParser.LoadProfileCommand(args);
             if (_profileCommandIndex > 0)
             {
-                _fusion?.LoadProfile(_profileCommandIndex);
+                _controller?.LoadProfile(_profileCommandIndex);
             }
             else if (CommandLineParser.GetAreasCommand(args))
-                MessageBox.Show(_fusion?.GetAreasReport());
+                MessageBox.Show(_controller?.GetAreasReport());
         }
     }
 }

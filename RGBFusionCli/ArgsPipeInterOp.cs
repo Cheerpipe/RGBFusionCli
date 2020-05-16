@@ -3,7 +3,7 @@ using System.IO;
 using System.IO.Pipes;
 
 
-namespace RGBFusion390SetColor
+namespace RGBFusionCli
 {
     public class ArgsPipeInterOp
     {

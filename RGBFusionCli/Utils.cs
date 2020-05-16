@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace RGBFusion390SetColor
+namespace RGBFusionCli
 {
     public class Util
     {

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows.Media;
 
-namespace RGBFusion390SetColor
+namespace RGBFusionCli
 {
     public class LedCommand
     {
