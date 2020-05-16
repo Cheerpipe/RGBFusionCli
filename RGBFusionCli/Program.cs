@@ -43,7 +43,6 @@ namespace RGBFusionCli
             pipeInterOp.SendArgs(args);
             SystemEvents.SessionEnding += SystemEvents_SessionEnding;
             _controller.StartListening();
-
         }
 
         private static void SystemEvents_SessionEnding(object sender, SessionEndingEventArgs e)
@@ -67,8 +66,12 @@ namespace RGBFusionCli
 
         public static void Run(string[] args)
         {
-            if (_controller?.IsInitialized() == false)
-                return;
+            int waitTimeOut = 0;
+            while ((_controller?.IsInitialized() == false) && (waitTimeOut < 5000))//We will wait for ¿5? seconds to get all things initialized, if we take more time the command will be discarded.
+            {
+                Thread.Sleep(100);
+                waitTimeOut += 100;
+            }
 
             var _ledCommands = CommandLineParser.GetLedCommands(args);
             if (_ledCommands.Count > 0)
