@@ -45,6 +45,7 @@ namespace RGBFusion390SetColor
         private static void SystemEvents_SessionEnding(object sender, SessionEndingEventArgs e)
         {
             Run(new string[] { "--shutdown" });
+            Thread.Sleep(500);
         }
 
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
@@ -85,6 +86,7 @@ namespace RGBFusion390SetColor
                 Run(new string[] { "--sa:-1:0:0:0:0" });
                 Thread.Sleep(500);
                 _fusion.Shutdown();
+                Thread.Sleep(500);
             }
 
             int _profileCommandIndex = CommandLineParser.LoadProfileCommand(args);
