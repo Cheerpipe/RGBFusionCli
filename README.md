@@ -6,7 +6,7 @@ RGBFusionCli es una herramienta muy simple que sirve para cambiar el color, modo
 Para funcionar, `RGBFusionCli` carga e inicializa los componentes internos de [Gigabyte's RGB Fusion] para utilizarlos a modo de HAL debido a que [Gigabyte's RGB Fusion] es capaz de manipular hardware de distintos tipos y marcas.
 Las tareas de inicialización pueden tardar varios segundos. Para evitar que esta demora ocurra cada vez que se aplica un cambio en la iluminación, `RGBFusionCli` inicia sus componentes internos y luego se queda a la espera de comandos enviados por linea de comandos o por un NamedPipe.
 
-## Modos de uso
+## Modos de uso 
 
 Esta utilidad puede ser utilizada de dos maneras distintas:
 
@@ -72,5 +72,31 @@ Donde:
 - auto = 9;
 - other = 10;
 - DFlash = 11;
+
+
+## Transacciones
+
+RGBFusionCli permite enviar la ejecución de comandos enviados de manera secuencial somo si fuese un solo comando a través del uso de transacciones. Para esto es necesario ejecutar la siguiente secuencia de comandos:
+
+```
+--transactionstart
+
+<SET AREAS COMMANDS>
+
+--transactioncommit
+```
+
+El comando `--transactionstart` iniciará el modo transaccional, luego de esto, todos los comandos que se envien serán encolados y ejecutados como si fuese un comando único al ejecutar el comando `--transactioncommit`.
+
+Ejemplo:
+
+```
+--transactionstart        	<- Inicia el modo transacción
+--setarea:0:0:255:0:0     	<- Crea un comando de cambio de color y lo encola.
+--setarea:2:0:0:255:0		<- Crea un comando de cambio de color y lo encola.
+--setarea:4:0:0:0:255		<- Crea un comando de cambio de color y lo encola.
+--setarea:6:0:0:255:255		<- Crea un comando de cambio de color y lo encola.
+--transactioncommit		<- Aplica todos los comandos enviados desde el inicio de la transacción y termina el modo trandacción.
+```
 
 Es importante destacar que no todas las áreas son compatibles con todos los modos. Tendrás que probar y ver que modos funcionan para cada área.
