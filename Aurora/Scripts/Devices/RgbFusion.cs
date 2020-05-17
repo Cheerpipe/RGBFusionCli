@@ -20,8 +20,9 @@ public class RGBFusion
     {
         try
         {
-            //TODO: Check if RGBFusionsetcolor is up and fire if off
-            Process.Start(@"C:\Program Files (x86)\GIGABYTE\RGBFusion\RGBFusionCli.exe");
+			KillProcessByName("RGBFusionCli.exe");
+			Thread.Sleep(500);
+			Process.Start(@"C:\Program Files (x86)\GIGABYTE\RGBFusion\RGBFusionCli.exe");
             return true;
         }
         catch (Exception exc)

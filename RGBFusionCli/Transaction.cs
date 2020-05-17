@@ -8,7 +8,7 @@ namespace RGBFusionCli
     {
         //TODO: Autocommit transaction if command queue is too large
         //TODO: Autocancel if a normal setled command is issued
-        private bool _transactionStarted = false;
+
         public bool TransactioStarted { get => _transactionStarted; set => _transactionStarted = value; }
 
         //private int _transationMaxAliveTime = 0;
