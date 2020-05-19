@@ -68,12 +68,13 @@ public class RGBFusion
     {
         try
         {
-            Dictionary <DeviceKeys, String> keyMap = new Dictionary<DeviceKeys, String> {
+            //TODO: Make this an automatic or user configurable setting - maybe add drawing to aurora
+            Dictionary<DeviceKeys, String> keyMap = new Dictionary<DeviceKeys, String> {
                 {DeviceKeys.A, "7"},    //IO-Shroud
                 {DeviceKeys.S, "3"},    //PCIE-Slots
-                {DeviceKeys.A, "1"},    //RAM-Slots
-                {DeviceKeys.A, "2"},    //Sidebar
-                {DeviceKeys.A, "8"},    //ARGB-Strip
+                {DeviceKeys.D, "1"},    //RAM-Slots
+                {DeviceKeys.F, "2"},    //Sidebar
+                {DeviceKeys.G, "8"},    //ARGB-Strip
             };
 
             //collect commands
@@ -81,11 +82,14 @@ public class RGBFusion
 
             foreach (KeyValuePair<DeviceKeys, Color> key in keyColors)
             {
+
                 //Iterate over each key and color and cache commands
-                if ( keyMap.ContainsKey(key.Key))
+                if (keyMap.ContainsKey(key.Key))
                 {
                     cA.addCommand(keyMap[key.Key], key.Value);
-                }   
+                }
+
+                
             }
 
             if (cA.hasCommands()){
@@ -95,6 +99,7 @@ public class RGBFusion
         }
         catch (Exception exc)
         {
+            Global.logger.LogLine(exc.Message);
             return false;
         }
     }
@@ -103,7 +108,7 @@ public class RGBFusion
     private void SendColorToDevice(CommandAssembler cA, bool forced)
     {
        //TODO: Make it check all individual zone colors and only update current one instead of only checking the most recently changed zone
-       color = cA.latestColor();
+       Color color = cA.latestColor();
         //Check if device's current color is the same, no need to update if they are the same		
         if (!device_color.Equals(color) || forced)
         {
@@ -119,6 +124,7 @@ internal class CommandAssembler{
 
     public void addCommand(String zone, Color color, String mode = "0"){
         commands.Add(string.Format(" --nc --sa:{0}:{1}:{2}:{3}:{4}", zone, mode, Convert.ToInt32(color.R * color.A / 255).ToString(), Convert.ToInt32(color.G * color.A / 255).ToString(), Convert.ToInt32(color.B * color.A / 255).ToString()));
+        Global.logger.LogLine(commands[commands.Count-1]);
         this.color = color;
     }
 
@@ -128,7 +134,7 @@ internal class CommandAssembler{
     }
 
     public Color latestColor(){
-        if (this.hasCommands)
+        if (this.hasCommands())
         {
             return color;
         }
