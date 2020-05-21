@@ -6,15 +6,8 @@ namespace RGBFusionCli
 {
     public class Transaction
     {
-        //TODO: Autocommit transaction if command queue is too large
-        //TODO: Autocancel if a normal setled command is issued
-        
         private bool _transactionStarted = false;
         public bool TransactioStarted { get => _transactionStarted; set => _transactionStarted = value; }
-
-        //private int _transationMaxAliveTime = 0;
-        //public int TransactionMaxAliveTime { get => _transationMaxAliveTime; set => _transationMaxAliveTime = value; }
-
         private Dictionary<int, LedCommand> _transactionLedCmmands;
         private RgbFusion _controller;
         private Timer _transactionMaxAliveTimer;
@@ -41,11 +34,9 @@ namespace RGBFusionCli
 
         public Transaction(RgbFusion controller)
         {
-
             _controller = controller;
             _transactionMaxAliveTimer = new Timer(new TimerCallback(_transactionMaxAliveTimer_Tick), null, Timeout.Infinite, Timeout.Infinite);
         }
-
 
         private void _transactionMaxAliveTimer_Tick(object state)
         {
