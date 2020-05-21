@@ -77,6 +77,10 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Gigabyte.ULightingEffects, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\Gigabyte.ULightingEffects.dll</HintPath>
+    </Reference>
     <Reference Include="LedLib2">
       <HintPath>lib\LedLib2.dll</HintPath>
     </Reference>

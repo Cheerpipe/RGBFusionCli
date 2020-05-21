@@ -1,4 +1,7 @@
+using LedLib2;
+using LedLib2.IT8297;
 using Microsoft.Win32;
+using SelLEDControl;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -18,7 +21,6 @@ namespace RGBFusionCli
         [STAThread]
         private static void Main(string[] args)
         {
-
             var pipeInterOp = new ArgsPipeInterOp();
             var instanceCount = int.MaxValue;
             if (!CommandLineParser.NoInstanceCheck(args))
@@ -43,6 +45,11 @@ namespace RGBFusionCli
             pipeInterOp.SendArgs(args);
             SystemEvents.SessionEnding += SystemEvents_SessionEnding;
             _controller.StartListening();
+        }
+
+        public class Counter<T>
+        {
+            public T Value { get; set; }
         }
 
         private static void SystemEvents_SessionEnding(object sender, SessionEndingEventArgs e)
