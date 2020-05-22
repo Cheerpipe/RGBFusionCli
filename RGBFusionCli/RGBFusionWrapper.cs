@@ -291,19 +291,17 @@ namespace RGBFusionCli
 
                 if (area.Ext_Area_id == ExtLedDev.None) //Mainboard
                 {
+                    //TODO: Find lower level call and use it
                     MainboardCommandsCommands.Add(area);
                 }
-                else if (area.Ext_Area_id == ExtLedDev.Kingston_RAM) //KinstoM RAM by SMBUS
+                else if (area.Ext_Area_id == ExtLedDev.Kingston_RAM)
                 {
-                    // _RAMNewColor = ((command.NewColor.R & 0x0ff) << 16) | ((command.NewColor.G & 0x0ff) << 8) | (command.NewColor.B & 0x0ff);
-                    new Task(() => { SetRamColor(command.NewColor); }).Start();
+                    new Task(() => { SetRamColor(command.NewColor); }).Start(); //Direct using MCU. Faster than using RGBFusion HAL.
                 }
-
                 else if (area.Ext_Area_id == ExtLedDev.GB_VGACard) //KinstoM RAM by Nvidia i2C. A lot faster than setting ram but still slow using rgbfusion methods.
                 {
-                    //Set VGA in special mode or get low framerate and very high cpu usage. GvLedLib shit
                     _RAMNewColor = command.NewColor;
-                    new Task(() => { GvledLib.SetColorToVga(System.Drawing.Color.FromArgb(255, command.NewColor.R, command.NewColor.G, command.NewColor.B)); }).Start();
+                    new Task(() => { AorusVGA.SetDirect(System.Drawing.Color.FromArgb(255, command.NewColor.R, command.NewColor.G, command.NewColor.B)); }).Start(); //Direct GvLedLib lib. A lot faster than RGBFusion HAL.
                 }
                 else
                 {
@@ -325,24 +323,15 @@ namespace RGBFusionCli
             }
         }
 
-
         private void SetLastRamColorTimerTick(object state)
         {
             _repeatLastCommandTimer.Change(Timeout.Infinite, Timeout.Infinite);
             SetRamColor(_RAMNewColor); // Setting ram color is slow, some times it won't set last color so i will re-set RAM after it stops last update.
         }
 
-        private bool _SettingRAMLeds = false;
         public void SetRamColor(Color color)
         {
-            if (!_SettingRAMLeds)
-            {
-                _SettingRAMLeds = true;
-                // _ram_led_obj?.Software_Control(-1, color, -1, -1, true);
-                SetKinstomRamDirect(color);
-                Thread.Sleep(1);
-                _SettingRAMLeds = false;
-            }
+            KingstonFury.SetDirect(color);
         }
 
         public string GetAreasReport()
@@ -375,15 +364,11 @@ namespace RGBFusionCli
         private void DoInit()
         {
             _repeatLastCommandTimer = new Timer(new TimerCallback(SetLastRamColorTimerTick), null, Timeout.Infinite, Timeout.Infinite); //70ms apperas to be the lower vald value. 100 is even better but dont look good.
-            // _repeatLastCommandTimmer.Elapsed += OnTimedEvent;
-            // _repeatLastCommandTimmer.AutoReset = false;
             _ledFun = new Comm_LED_Fun(false);
             _ledFun.Apply_ScanPeriphera_Scuuess += CallBackLedFunApplyScanPeripheralSuccess;
             _ledFun.ApplyEZ_Success += CallBackLedFunApplyEzSuccess;
             _ledFun.ApplyAdv_Success += CallBackLedFunApplyAdvSuccess;
-
             _ledFun.Ini_LED_Fun();
-
             _ledFun = CommUI.Get_Easy_Pattern_color_Key(_ledFun);
 
             _ledFun.LEd_Layout.Set_Support_Flag();
@@ -393,41 +378,22 @@ namespace RGBFusionCli
             }
             while (!_scanDone);
 
-            _ledFun.Current_Mode = 1; 
+            _ledFun.Current_Mode = 1;
 
             _ledFun.Led_Ezsetup_Obj.PoweronStatus = 1;
             _ledFun.Set_Sync(false);
             FillAllAreaInfo();
             Fill_ExtArea_info();
-
-
             _ledObject = (LedObject)typeof(Comm_LED_Fun).GetField("LedObj", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this._ledFun);
             _gb_led_periphs = (GBLedPeripherals)typeof(LedObject).GetField("gb_led_periphs", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_ledObject);
             _ram_led_obj = (PeripheralDeviceManagement)typeof(LedObject).GetField("ram_led_obj", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_ledObject);
-
             //Initialize mode and bright.
-            _ram_led_obj?.Software_Control(1, 55555, 0, 9, true);
-
+            _ram_led_obj?.Software_Control(1, -1, 0, 9, true);
             _ledObject.bSyncRAM = false;
             _ledObject.bSyncVGA = false;
             _initialized = true;
         }
 
-        private void SetKinstomRamDirect(Color color)
-        {
-            byte pNull = 0;
-            byte mcuAddr = 78;//Specific for Aorus Master Z390 and Kinstom RAM
-            int commandDelay = 2;
-            SMBusCtrl.MCU_Rw(mcuAddr, 225, 1, ref pNull, 0, 0); //Start command
-            SMBusCtrl.MCU_Rw(mcuAddr, 236, (byte)color.R, ref pNull, 0, 0);
-            Thread.Sleep(commandDelay);
-            SMBusCtrl.MCU_Rw(mcuAddr, 237, (byte)color.G, ref pNull, 0, 0);
-            Thread.Sleep(commandDelay);
-            SMBusCtrl.MCU_Rw(mcuAddr, 238, (byte)color.B, ref pNull, 0, 0);
-            Thread.Sleep(commandDelay);
-            SMBusCtrl.MCU_Rw(mcuAddr, 225, 2, ref pNull, 0, 0); //Close command
-            SMBusCtrl.MCU_Rw(mcuAddr, 225, 3, ref pNull, 0, 0); // Apply command
-        }
 
         private LedObject _ledObject;
         private PeripheralDeviceManagement _ram_led_obj;

@@ -105,14 +105,14 @@
   <ItemGroup>
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="ArgsPipeInterOp.cs" />
-    <Compile Include="Wrappers\GvledLib.cs" />
+    <Compile Include="DeviceSpecific\AorusVGA.cs" />
     <Compile Include="LedCommand.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RGBFusionWrapper.cs" />
     <Compile Include="Transaction.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="Wrappers\SMBusCtrl.cs" />
+    <Compile Include="DeviceSpecific\KingstonFury.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
