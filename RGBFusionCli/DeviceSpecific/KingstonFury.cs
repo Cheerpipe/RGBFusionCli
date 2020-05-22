@@ -18,7 +18,7 @@ namespace RGBFusionCli.Wrappers
         private static extern uint Skx_SMB_ByteRW(byte controller, byte mcuAddr, byte regOffset, byte val, ref byte pVal, byte rw);
         private static byte pNull = 0;
         private static byte mcuAddr = 78; //Specific for controlling Kingstom RAM from MCU
-        private static int commandDelay = 1; // It could be too lower if ther are more devices using MCU. Setting to 1 because i have only rams using mcu.
+        private static int commandDelay = 6; // It could be too lower if ther are more devices using MCU. Setting to 1 because i have only rams using mcu.
 
         private static bool _settingRAMLed = false;
         public static void SetDirect(Color color)
@@ -27,6 +27,7 @@ namespace RGBFusionCli.Wrappers
             {
                 _settingRAMLed = true;
                 MCU_Rw(mcuAddr, 225, 1, ref pNull, 0, 0); //Start command
+                Thread.Sleep(commandDelay);
                 MCU_Rw(mcuAddr, 236, (byte)color.R, ref pNull, 0, 0);
                 Thread.Sleep(commandDelay);
                 MCU_Rw(mcuAddr, 237, (byte)color.G, ref pNull, 0, 0);
@@ -34,7 +35,9 @@ namespace RGBFusionCli.Wrappers
                 MCU_Rw(mcuAddr, 238, (byte)color.B, ref pNull, 0, 0);
                 Thread.Sleep(commandDelay);
                 MCU_Rw(mcuAddr, 225, 2, ref pNull, 0, 0); //Close command
+                Thread.Sleep(commandDelay);
                 MCU_Rw(mcuAddr, 225, 3, ref pNull, 0, 0); // Apply command
+                Thread.Sleep(commandDelay);
                 _settingRAMLed = false;
             }
         }
