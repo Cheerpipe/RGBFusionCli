@@ -296,11 +296,11 @@ namespace RGBFusionCli
                 }
                 else if (area.Ext_Area_id == ExtLedDev.Kingston_RAM)
                 {
+                    _RAMNewColor = command.NewColor;
                     new Task(() => { SetRamColor(command.NewColor); }).Start(); //Direct using MCU. Faster than using RGBFusion HAL.
                 }
                 else if (area.Ext_Area_id == ExtLedDev.GB_VGACard) //KinstoM RAM by Nvidia i2C. A lot faster than setting ram but still slow using rgbfusion methods.
                 {
-                    _RAMNewColor = command.NewColor;
                     new Task(() => { AorusVGA.SetDirect(System.Drawing.Color.FromArgb(255, command.NewColor.R, command.NewColor.G, command.NewColor.B)); }).Start(); //Direct GvLedLib lib. A lot faster than RGBFusion HAL.
                 }
                 else
@@ -325,8 +325,8 @@ namespace RGBFusionCli
 
         private void SetLastRamColorTimerTick(object state)
         {
-            _repeatLastCommandTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            SetRamColor(_RAMNewColor); // Setting ram color is slow, some times it won't set last color so i will re-set RAM after it stops last update.
+           // _repeatLastCommandTimer.Change(Timeout.Infinite, Timeout.Infinite);
+           // SetRamColor(_RAMNewColor); // Setting ram color is slow, some times it won't set last color so i will re-set RAM after it stops last update.
         }
 
         public void SetRamColor(Color color)

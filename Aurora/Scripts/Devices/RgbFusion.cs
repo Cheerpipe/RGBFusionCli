@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Threading;
+using CSScriptLibrary;
 
 public class RGBFusion
 {
@@ -20,9 +21,10 @@ public class RGBFusion
     {
         try
         {
-			KillProcessByName("RGBFusionCli.exe");
-			Thread.Sleep(500);
-			Process.Start(@"C:\Program Files (x86)\GIGABYTE\RGBFusion\RGBFusionCli.exe");
+            //TODO: Check if RGBFusionsetcolor is up and fire if off
+            KillProcessByName("RGBFusionCli.exe");
+            Thread.Sleep(500);
+            Process.Start(@"C:\Program Files (x86)\GIGABYTE\RGBFusion\RGBFusionCli.exe");
             return true;
         }
         catch (Exception exc)
@@ -30,18 +32,15 @@ public class RGBFusion
             return false;
         }
     }
-
-    public void Reset()
+	
+    public void SendArgs(string[] args)
     {
-        Shutdown();
-        Thread.Sleep(1000);
-        Initialize();
-    }
-
-    public void Shutdown()
-    {
-        SendArgs(new string[] { "--shutdown" });
-        Thread.Sleep(500);
+        using (var pipe = new NamedPipeClientStream(".", "RGBFusion390SetColor", PipeDirection.Out))
+        using (var stream = new StreamWriter(pipe))
+        {
+            pipe.Connect(timeout: 100);
+            stream.Write(string.Join(separator: " ", value: args));
+        }
     }
 
     public static void KillProcessByName(string processName)
@@ -54,45 +53,80 @@ public class RGBFusion
         cmd.Dispose();
     }
 
-    public void SendArgs(string[] args)
+    public void Reset()
     {
-        using (var pipe = new NamedPipeClientStream(".", "RGBFusion390SetColor", PipeDirection.Out))
-        using (var stream = new StreamWriter(pipe))
+        Shutdown();
+        Thread.Sleep(1000);
+        Initialize();
+    }
+
+    public void Shutdown()
+    {
+        SendArgs(new string[] { "--shutdown" });
+        Thread.Sleep(1000);
+    }
+
+    private struct DeviceMapState
+    {
+        public byte led;
+        public Color color;
+        public DeviceKeys deviceKey;
+        public DeviceMapState(byte led, Color color, DeviceKeys deviceKeys)
         {
-            pipe.Connect(timeout: 100);
-            stream.Write(string.Join(separator: " ", value: args));
+            this.led = led;
+            this.color = color;
+            this.deviceKey = deviceKeys;
         }
     }
 
+    private List<DeviceMapState> deviceMap = new List<DeviceMapState>
+    {
+      new DeviceMapState(1, Color.FromArgb(0, 0, 0), DeviceKeys.ADDITIONALLIGHT5),
+      new DeviceMapState(2, Color.FromArgb(0, 0, 0), DeviceKeys.ADDITIONALLIGHT8),
+      new DeviceMapState(3, Color.FromArgb(0, 0, 0), DeviceKeys.ADDITIONALLIGHT11),
+      new DeviceMapState(5, Color.FromArgb(0, 0, 0), DeviceKeys.ADDITIONALLIGHT14),
+      new DeviceMapState(6, Color.FromArgb(0, 0, 0), DeviceKeys.ADDITIONALLIGHT17),
+      new DeviceMapState(8, Color.FromArgb(0, 0, 0), DeviceKeys.ADDITIONALLIGHT20),
+      new DeviceMapState(9, Color.FromArgb(0, 0, 0), DeviceKeys.ADDITIONALLIGHT22)
+    };
+
+    bool _deviceChanged = true;
     public bool UpdateDevice(Dictionary<DeviceKeys, Color> keyColors, bool forced)
     {
         try
         {
             foreach (KeyValuePair<DeviceKeys, Color> key in keyColors)
             {
-                //Iterate over each key and color and send them to your device
-                if (key.Key == DeviceKeys.ESC) //Device will take ESC key color
+                if (key.Key == DeviceKeys.ADDITIONALLIGHT5)
                 {
-                    SendColorToDevice(key.Value, forced);
+					if (_deviceChanged)
+						SendArgs(new string[] { "--transactioncommit" });
+                    SendArgs(new[] { "--transactionstart" });
+					_deviceChanged = false;
+                }
+                for (byte d = 0; d < deviceMap.Count; d++)
+                {
+                    if ((deviceMap[d].deviceKey == key.Key) && (key.Value != deviceMap[d].color))
+                    {
+                        SendColorToDevice(key.Value, deviceMap[d].led);
+                        deviceMap[d] = new DeviceMapState(deviceMap[d].led, key.Value, deviceMap[d].deviceKey);
+                        _deviceChanged = true;
+                    }
                 }
             }
             return true;
         }
-        catch (Exception exc)
+        catch (Exception)
         {
             return false;
         }
     }
 
     //Custom method to send the color to the device
-    private void SendColorToDevice(Color color, bool forced)
+    private void SendColorToDevice(Color color, int area = -1)
     {
-        //Check if device's current color is the same, no need to update if they are the same		
-        if (!device_color.Equals(color) || forced)
-        {
-            device_color = color;
-            string command = string.Format(" --nc --sa:-1:0:{0}:{1}:{2}", Convert.ToInt32(color.R * color.A / 255).ToString(), Convert.ToInt32(color.G * color.A / 255).ToString(), Convert.ToInt32(color.B * color.A / 255).ToString());
-            SendArgs(new string[] { command });
-        }
+		device_color = color;
+		string command = string.Format(" --sa:{3}:0:{0}:{1}:{2}", Convert.ToInt32(color.R * color.A / 255).ToString(), Convert.ToInt32(color.G * color.A / 255).ToString(), Convert.ToInt32(color.B * color.A / 255).ToString(), area.ToString());
+		SendArgs(new string[] { command });
     }
 }
