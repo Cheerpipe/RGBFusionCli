@@ -21,8 +21,8 @@ namespace RGBFusionCli
         public Comm_LED_Fun _ledFunSlow;
         private bool _areaChangeApplySuccess;
         private bool _scanDone;
-        private List<CommUI.Area_class> _allAreaInfo;
-        private List<CommUI.Area_class> _allExtAreaInfo;
+        private Dictionary<int, CommUI.Area_class> _allAreaInfo = new Dictionary<int, CommUI.Area_class>();
+
         private List<LedCommand> _commands;
         private bool _initialized;
         private Color _RAMNewColor = Color.FromArgb(0, 0, 0, 0);
@@ -48,7 +48,45 @@ namespace RGBFusionCli
 
         private void FillAllAreaInfo()
         {
-            _allAreaInfo = GetAllAreaInfo();
+            _allAreaInfo.Clear();
+            foreach (CommUI.Area_class area in GetAllAreaInfo())
+            {
+                var patternCombItem = new CommUI.Pattern_Comb_Item
+                {
+                    Bg_Brush_Solid = { Color = area.Pattern_info.Bg_Brush_Solid.Color },
+                    Sel_Item = { Style = null }
+                };
+
+                patternCombItem.Sel_Item.Background = patternCombItem.Bg_Brush_Solid;
+                patternCombItem.Sel_Item.Content = string.Empty;
+                patternCombItem.But_Args = CommUI.Get_Color_Sceenes_class_From_Brush(patternCombItem.Bg_Brush_Solid);
+                patternCombItem.Bri = area.Pattern_info.Bri;
+                patternCombItem.Speed = area.Pattern_info.Speed;
+                patternCombItem.Type = area.Pattern_info.Type;
+                CommUI.Area_class newArea = new CommUI.Area_class(patternCombItem, area.Area_index, null);
+                _allAreaInfo.Add(area.Area_index, newArea);
+            }
+
+            var y = GetAllExtAreaInfo();
+            foreach (CommUI.Area_class extArea in GetAllExtAreaInfo())
+            {
+
+                var patternCombItem = new CommUI.Pattern_Comb_Item
+                {
+                    Bg_Brush_Solid = { Color = extArea.Pattern_info.Bg_Brush_Solid.Color },
+                    Sel_Item = { Style = null }
+                };
+
+                patternCombItem.Sel_Item.Background = patternCombItem.Bg_Brush_Solid;
+                patternCombItem.Sel_Item.Content = string.Empty;
+                patternCombItem.But_Args = CommUI.Get_Color_Sceenes_class_From_Brush(patternCombItem.Bg_Brush_Solid);
+                patternCombItem.Bri = extArea.Pattern_info.Bri;
+                patternCombItem.Speed = extArea.Pattern_info.Speed;
+                patternCombItem.Type = extArea.Pattern_info.Type;
+                CommUI.Area_class newExtArea = new CommUI.Area_class(patternCombItem, extArea.Area_index, null);
+                newExtArea.Ext_Area_id = extArea.Ext_Area_id;
+                _allAreaInfo.Add(newExtArea.Area_index, newExtArea);
+            }
         }
 
         public void Shutdown()
@@ -143,11 +181,6 @@ namespace RGBFusionCli
             CommUI.Export_to_xml(areaClasses, proXmlFilePath, profileName);
         }
 
-        private void Fill_ExtArea_info()
-        {
-            _allExtAreaInfo = GetAllExtAreaInfo();
-        }
-
         private List<CommUI.Area_class> GetAllExtAreaInfo(int profileId = -1)
         {
             List<CommUI.Area_class> allExtAreaInfo;
@@ -227,34 +260,8 @@ namespace RGBFusionCli
             Init();
         }
 
-        public void SetAllAreas(object obj)
-        {
-            var patternCombItem = new CommUI.Pattern_Comb_Item
-            {
-                Bg_Brush_Solid = { Color = (Color)obj },
-                Sel_Item = { Style = null }
-            };
-
-            patternCombItem.Sel_Item.Background = patternCombItem.Bg_Brush_Solid;
-            patternCombItem.Sel_Item.Content = string.Empty;
-            patternCombItem.But_Args = CommUI.Get_Color_Sceenes_class_From_Brush(patternCombItem.Bg_Brush_Solid);
-            patternCombItem.But_Args[0].Scenes_type = 0;
-            patternCombItem.But_Args[1].Scenes_type = 0;
-            patternCombItem.But_Args[0].TransitionsTeime = 10;
-            patternCombItem.But_Args[1].TransitionsTeime = 10;
-            patternCombItem.Bri = 9;
-            patternCombItem.Speed = 2;
-            patternCombItem.Type = 0;
-            var allAreaInfo = _allAreaInfo.Select(areaInfo => new CommUI.Area_class(patternCombItem, areaInfo.Area_index, null)).ToList();
-            var allExtAreaInfo = _allExtAreaInfo.Select(areaInfo => new CommUI.Area_class(patternCombItem, areaInfo.Area_index, null) { Ext_Area_id = areaInfo.Ext_Area_id }).ToList();
-
-            allAreaInfo.AddRange(allExtAreaInfo);
-            _ledFun.Set_Adv_mode(allAreaInfo, true);
-        }
-
         private void CreateAreaCommands()
         {
-
             if (_commands.Count <= 0)
                 return;
 
@@ -264,42 +271,36 @@ namespace RGBFusionCli
 
                 if (command.AreaId == -1)
                 {
-                    SetAllAreas(command.NewColor);
+                    foreach (CommUI.Area_class setAllArea in _allAreaInfo.Values)
+                    {
+                        setAllArea.Pattern_info.Bg_Brush_Solid.Color = command.NewColor;
+                        setAllArea.Pattern_info.Type = command.NewMode;
+                        setAllArea.Pattern_info.Bri = command.Bright;
+                        setAllArea.Pattern_info.Speed = command.Speed;
+                        setAllArea.Pattern_info.But_Args = CommUI.Get_Color_Sceenes_class_From_Brush(setAllArea.Pattern_info.Bg_Brush_Solid);
+                        MainboardCommandsCommands.Add(setAllArea);
+                    }
                     continue;
                 }
 
-                var patternCombItem = new CommUI.Pattern_Comb_Item
-                {
-                    Bg_Brush_Solid = { Color = command.NewColor },
-                    Sel_Item = { Style = null }
-                };
-
-                patternCombItem.Sel_Item.Background = patternCombItem.Bg_Brush_Solid;
-                patternCombItem.Sel_Item.Content = string.Empty;
-                patternCombItem.But_Args = CommUI.Get_Color_Sceenes_class_From_Brush(patternCombItem.Bg_Brush_Solid);
-
-                patternCombItem.Bri = command.Bright;
-                patternCombItem.Speed = command.Speed;
-
-                patternCombItem.Type = command.NewMode;
-                var area = new CommUI.Area_class(patternCombItem, command.AreaId, null);
-
-                foreach (var extAreaInfo in _allExtAreaInfo.Where(extAreaInfo => extAreaInfo.Area_index == area.Area_index))
-                {
-                    area.Ext_Area_id = extAreaInfo.Ext_Area_id;
-                }
+                CommUI.Area_class area = _allAreaInfo[command.AreaId];
+                area.Pattern_info.Bg_Brush_Solid.Color = command.NewColor;
+                area.Pattern_info.Type = command.NewMode;
+                area.Pattern_info.Bri = command.Bright;
+                area.Pattern_info.Speed = command.Speed;
+                area.Pattern_info.But_Args = CommUI.Get_Color_Sceenes_class_From_Brush(area.Pattern_info.Bg_Brush_Solid);
 
                 if (area.Ext_Area_id == ExtLedDev.None) //Mainboard
                 {
                     //TODO: Find lower level call and use it
                     MainboardCommandsCommands.Add(area);
                 }
-                else if (area.Ext_Area_id == ExtLedDev.Kingston_RAM)
+                else if (area.Ext_Area_id == ExtLedDev.Kingston_RAM && _ledObject.MB_Id == MBIdentify.I_Z390)
                 {
                     _RAMNewColor = command.NewColor;
                     new Task(() => { SetRamColor(command.NewColor); }).Start(); //Direct using MCU. Faster than using RGBFusion HAL.
                 }
-                else if (area.Ext_Area_id == ExtLedDev.GB_VGACard) //KinstoM RAM by Nvidia i2C. A lot faster than setting ram but still slow using rgbfusion methods.
+                else if (area.Ext_Area_id == ExtLedDev.GB_VGACard && _gb_led_periphs?.GraphicsName == "GV-N2080GAMING OC-8GC") //KinstoM RAM by Nvidia i2C. A lot faster than setting ram but still slow using rgbfusion methods.
                 {
                     new Task(() => { AorusVGA.SetDirect(System.Drawing.Color.FromArgb(255, command.NewColor.R, command.NewColor.G, command.NewColor.B)); }).Start(); //Direct GvLedLib lib. A lot faster than RGBFusion HAL.
                 }
@@ -307,10 +308,13 @@ namespace RGBFusionCli
                 {
                     MainboardCommandsCommands.Add(area); // Left devices, for now i left this just for compatibility but it may be slow on some rigs.
                 }
+                _allAreaInfo[command.AreaId] = area;
             }
         }
+
         public void SetMainboardRingAreas()
         {
+            FillAllAreaInfo();
             while (_MainBoardRingCommandsThread.IsAlive)
             {
                 _MainBoardRingCommandEvent.WaitOne();
@@ -325,8 +329,8 @@ namespace RGBFusionCli
 
         private void SetLastRamColorTimerTick(object state)
         {
-           // _repeatLastCommandTimer.Change(Timeout.Infinite, Timeout.Infinite);
-           // SetRamColor(_RAMNewColor); // Setting ram color is slow, some times it won't set last color so i will re-set RAM after it stops last update.
+            _repeatLastCommandTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            SetRamColor(_RAMNewColor);
         }
 
         public void SetRamColor(Color color)
@@ -340,10 +344,10 @@ namespace RGBFusionCli
             if (_allAreaInfo.Count > 0)
             {
                 areasReport += "Areas detected on " + _ledFun.Product_Name + Environment.NewLine;
-                areasReport = _allAreaInfo.Aggregate(areasReport, (current, area) => current + ("    Area ID: " + area.Area_index + Environment.NewLine));
+                areasReport = _allAreaInfo.Aggregate(areasReport, (current, area) => current + ("    Area ID: " + area.Value.Area_index + Environment.NewLine));
             }
             areasReport += Environment.NewLine;
-
+            /*
             if (_allExtAreaInfo.Count > 0)
                 foreach (var areaInfo in _ledFun.LEd_Layout.Ext_Led_Array)
                 {
@@ -351,6 +355,7 @@ namespace RGBFusionCli
                     areasReport += "Areas detected on " + extDevice + Environment.NewLine;
                     areasReport = _allExtAreaInfo.Where(area => area.Ext_Area_id == areaInfo.extLDev).Aggregate(areasReport, (current, area) => current + ("    Area ID: " + area.Area_index + Environment.NewLine));
                 }
+                */
             areasReport += Environment.NewLine;
             areasReport += "Use Area ID -1 to set all areas at the same time.";
 
@@ -382,8 +387,7 @@ namespace RGBFusionCli
 
             _ledFun.Led_Ezsetup_Obj.PoweronStatus = 1;
             _ledFun.Set_Sync(false);
-            FillAllAreaInfo();
-            Fill_ExtArea_info();
+
             _ledObject = (LedObject)typeof(Comm_LED_Fun).GetField("LedObj", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this._ledFun);
             _gb_led_periphs = (GBLedPeripherals)typeof(LedObject).GetField("gb_led_periphs", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_ledObject);
             _ram_led_obj = (PeripheralDeviceManagement)typeof(LedObject).GetField("ram_led_obj", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_ledObject);
