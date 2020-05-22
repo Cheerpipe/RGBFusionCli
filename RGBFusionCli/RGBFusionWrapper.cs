@@ -2,42 +2,39 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Media;
+using Gigabyte.ULightingEffects.Devices;
+using LedLib2;
+using LedLib2.GBPeripheralsLedAPI;
+using RGBFusionCli.Wrappers;
 using SelLEDControl;
 
 namespace RGBFusionCli
 {
     public class RgbFusion
     {
-
-        private Comm_LED_Fun _ledFun;
+        private const int REPEAT_LAST_COMMAND_TIMEOUT = 70; //ms to wait to re send last color to rams to ensure it change after a command flow
+        public Comm_LED_Fun _ledFun;
+        public Comm_LED_Fun _ledFunSlow;
         private bool _areaChangeApplySuccess;
         private bool _scanDone;
         private List<CommUI.Area_class> _allAreaInfo;
         private List<CommUI.Area_class> _allExtAreaInfo;
         private List<LedCommand> _commands;
         private bool _initialized;
-
-        private Thread _FasterRingCommandsThread;
-        private Thread _NormalRingCommandsThread;
-        private Thread _SlowRingCommandsThread;
-
-        private List<CommUI.Area_class> FastRingAreaInfoCommands = new List<CommUI.Area_class>();
-        private List<CommUI.Area_class> NormalRingAreaInfoCommands = new List<CommUI.Area_class>();
-        private List<CommUI.Area_class> SlowRingAreaInfoCommands = new List<CommUI.Area_class>();
-
-        private bool ignoreFlag = false;
-
+        private Color _RAMNewColor = Color.FromArgb(0, 0, 0, 0);
+        private Thread _MainBoardRingCommandsThread;
+        readonly ManualResetEvent _MainBoardRingCommandEvent = new ManualResetEvent(false);
+        private List<CommUI.Area_class> MainboardCommandsCommands = new List<CommUI.Area_class>();
+        private Timer _repeatLastCommandTimer;
 
         public bool IsInitialized()
         {
             return _ledFun != null && _initialized;
         }
-
-        readonly ManualResetEvent _FasterRingCommandEvent = new ManualResetEvent(false);
-        readonly ManualResetEvent _NormalRingCommandEvent = new ManualResetEvent(false);
-        readonly ManualResetEvent _SlowRingCommandEvent = new ManualResetEvent(false);
 
         public void LoadProfile(int profileId)
         {
@@ -56,9 +53,7 @@ namespace RGBFusionCli
 
         public void Shutdown()
         {
-            _FasterRingCommandsThread.Abort();
-            _NormalRingCommandsThread.Abort();
-            _SlowRingCommandsThread.Abort();
+            _MainBoardRingCommandsThread.Abort();
         }
 
         private List<CommUI.Area_class> GetAllAreaInfo(int profileId = -1)
@@ -212,31 +207,19 @@ namespace RGBFusionCli
 
         public void StartListening()
         {
-            _FasterRingCommandsThread = new Thread(SetFastRingAreas);
-            _FasterRingCommandsThread.SetApartmentState(ApartmentState.STA);
-            _FasterRingCommandsThread.Start();
-
-            _NormalRingCommandsThread = new Thread(SetNormalRingAreas);
-            _NormalRingCommandsThread.SetApartmentState(ApartmentState.STA);
-            _NormalRingCommandsThread.Start();
-
-            _SlowRingCommandsThread = new Thread(SetSlowRingAreas);
-            _SlowRingCommandsThread.SetApartmentState(ApartmentState.STA);
-            _SlowRingCommandsThread.Start();
-
-            _FasterRingCommandsThread.Join();
-            _NormalRingCommandsThread.Join();
-            _SlowRingCommandsThread.Join();
+            _MainBoardRingCommandsThread = new Thread(SetMainboardRingAreas);
+            _MainBoardRingCommandsThread.SetApartmentState(ApartmentState.STA);
+            _MainBoardRingCommandsThread.Start();
+            _MainBoardRingCommandsThread.Join();
         }
 
         public void ChangeColorForAreas(List<LedCommand> commands)
         {
             _commands = commands;
-
-            _repeatLastCommandTimmer.Stop();
-            _FasterRingCommandEvent.Set();
-            _repeatLastCommandCount = 0;
-            _repeatLastCommandTimmer.Start();
+            Thread.Sleep(1); //Give time to set variables beffore kick in events
+            _repeatLastCommandTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            _MainBoardRingCommandEvent.Set();
+            _repeatLastCommandTimer.Change(REPEAT_LAST_COMMAND_TIMEOUT, REPEAT_LAST_COMMAND_TIMEOUT);
         }
 
         public void Reset()
@@ -262,23 +245,11 @@ namespace RGBFusionCli
             patternCombItem.Bri = 9;
             patternCombItem.Speed = 2;
             patternCombItem.Type = 0;
-
             var allAreaInfo = _allAreaInfo.Select(areaInfo => new CommUI.Area_class(patternCombItem, areaInfo.Area_index, null)).ToList();
-
             var allExtAreaInfo = _allExtAreaInfo.Select(areaInfo => new CommUI.Area_class(patternCombItem, areaInfo.Area_index, null) { Ext_Area_id = areaInfo.Ext_Area_id }).ToList();
 
             allAreaInfo.AddRange(allExtAreaInfo);
             _ledFun.Set_Adv_mode(allAreaInfo, true);
-        }
-
-        public void StartMusicMode()
-        {
-            _ledFun.Start_music_mode();
-        }
-
-        public void StopMusicMode()
-        {
-            _ledFun.Stop_music_mode();
         }
 
         private void CreateAreaCommands()
@@ -287,10 +258,7 @@ namespace RGBFusionCli
             if (_commands.Count <= 0)
                 return;
 
-            FastRingAreaInfoCommands.Clear();
-            NormalRingAreaInfoCommands.Clear();
-            SlowRingAreaInfoCommands.Clear();
-
+            MainboardCommandsCommands.Clear();
             foreach (var command in _commands)
             {
 
@@ -321,74 +289,49 @@ namespace RGBFusionCli
                     area.Ext_Area_id = extAreaInfo.Ext_Area_id;
                 }
 
-                if (area.Ext_Area_id == LedLib2.ExtLedDev.None)
-                    FastRingAreaInfoCommands.Add(area);
-                else if (area.Ext_Area_id == LedLib2.ExtLedDev.Kingston_RAM)
-                    NormalRingAreaInfoCommands.Add(area);
+                if (area.Ext_Area_id == ExtLedDev.None) //Mainboard
+                {
+                    //TODO: Find lower level call and use it
+                    MainboardCommandsCommands.Add(area);
+                }
+                else if (area.Ext_Area_id == ExtLedDev.Kingston_RAM)
+                {
+                    _RAMNewColor = command.NewColor;
+                    new Task(() => { SetRamColor(command.NewColor); }).Start(); //Direct using MCU. Faster than using RGBFusion HAL.
+                }
+                else if (area.Ext_Area_id == ExtLedDev.GB_VGACard) //KinstoM RAM by Nvidia i2C. A lot faster than setting ram but still slow using rgbfusion methods.
+                {
+                    new Task(() => { AorusVGA.SetDirect(System.Drawing.Color.FromArgb(255, command.NewColor.R, command.NewColor.G, command.NewColor.B)); }).Start(); //Direct GvLedLib lib. A lot faster than RGBFusion HAL.
+                }
                 else
-                    SlowRingAreaInfoCommands.Add(area);
+                {
+                    MainboardCommandsCommands.Add(area); // Left devices, for now i left this just for compatibility but it may be slow on some rigs.
+                }
             }
         }
-
-        public void SetFastRingAreas()
+        public void SetMainboardRingAreas()
         {
-            while (_FasterRingCommandsThread.IsAlive)
+            while (_MainBoardRingCommandsThread.IsAlive)
             {
-                //Todo: Repeat last command if not new command is issued
-                _FasterRingCommandEvent.WaitOne();
+                _MainBoardRingCommandEvent.WaitOne();
                 CreateAreaCommands();
-                if (FastRingAreaInfoCommands.Count > 0)
+                if (MainboardCommandsCommands.Count > 0)
                 {
-                    _ledFun.Set_Adv_mode(FastRingAreaInfoCommands, true);
+                    _ledFun.Set_Adv_mode(MainboardCommandsCommands, true); // Just Mainboard can work in direct mode with RGBFusion gigabyte dlls. Managed to get direct mode on VGA with lower level dll.
                 }
-                _FasterRingCommandEvent.Reset();
-                _NormalRingCommandEvent.Set();
-
+                _MainBoardRingCommandEvent.Reset();
             }
         }
 
-        private System.Timers.Timer _repeatLastCommandTimmer = new System.Timers.Timer(100);
-        private int _repeatLastCommandCount = 0;
-        private readonly int _repeatLastCommandMaxCount = 1;
-        private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+        private void SetLastRamColorTimerTick(object state)
         {
-            _FasterRingCommandEvent.Set();
-
-            if (_repeatLastCommandCount < _repeatLastCommandMaxCount)
-            {
-                _repeatLastCommandTimmer.Start();
-            }
-            _repeatLastCommandCount++;
+           // _repeatLastCommandTimer.Change(Timeout.Infinite, Timeout.Infinite);
+           // SetRamColor(_RAMNewColor); // Setting ram color is slow, some times it won't set last color so i will re-set RAM after it stops last update.
         }
 
-        public void SetNormalRingAreas()
+        public void SetRamColor(Color color)
         {
-            while (_NormalRingCommandsThread.IsAlive)
-            {
-                _NormalRingCommandEvent.WaitOne();
-                if (NormalRingAreaInfoCommands.Count > 0)
-                {
-                    _ledFun.Set_Adv_mode(NormalRingAreaInfoCommands, true);
-                }
-                _NormalRingCommandEvent.Reset();
-                _SlowRingCommandEvent.Set();
-            }
-        }
-
-        public void SetSlowRingAreas()
-        {
-            while (_SlowRingCommandsThread.IsAlive)
-            {
-                _SlowRingCommandEvent.WaitOne();
-
-                if (SlowRingAreaInfoCommands.Count > 0)
-                {
-                    if (!ignoreFlag)
-                        _ledFun.Set_Adv_mode(SlowRingAreaInfoCommands, true);
-                    ignoreFlag = !ignoreFlag;
-                }
-                _SlowRingCommandEvent.Reset();
-            }
+            KingstonFury.SetDirect(color);
         }
 
         public string GetAreasReport()
@@ -420,15 +363,12 @@ namespace RGBFusionCli
 
         private void DoInit()
         {
-            _repeatLastCommandTimmer.Elapsed += OnTimedEvent;
-            _repeatLastCommandTimmer.AutoReset = false;
+            _repeatLastCommandTimer = new Timer(new TimerCallback(SetLastRamColorTimerTick), null, Timeout.Infinite, Timeout.Infinite); //70ms apperas to be the lower vald value. 100 is even better but dont look good.
             _ledFun = new Comm_LED_Fun(false);
             _ledFun.Apply_ScanPeriphera_Scuuess += CallBackLedFunApplyScanPeripheralSuccess;
             _ledFun.ApplyEZ_Success += CallBackLedFunApplyEzSuccess;
             _ledFun.ApplyAdv_Success += CallBackLedFunApplyAdvSuccess;
-
             _ledFun.Ini_LED_Fun();
-
             _ledFun = CommUI.Get_Easy_Pattern_color_Key(_ledFun);
 
             _ledFun.LEd_Layout.Set_Support_Flag();
@@ -438,14 +378,25 @@ namespace RGBFusionCli
             }
             while (!_scanDone);
 
-            _ledFun.Current_Mode = 0; // 1= Advanced 0 = Simple or Ez
+            _ledFun.Current_Mode = 1;
 
             _ledFun.Led_Ezsetup_Obj.PoweronStatus = 1;
-            _ledFun.Set_Sync(true);
+            _ledFun.Set_Sync(false);
             FillAllAreaInfo();
             Fill_ExtArea_info();
+            _ledObject = (LedObject)typeof(Comm_LED_Fun).GetField("LedObj", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this._ledFun);
+            _gb_led_periphs = (GBLedPeripherals)typeof(LedObject).GetField("gb_led_periphs", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_ledObject);
+            _ram_led_obj = (PeripheralDeviceManagement)typeof(LedObject).GetField("ram_led_obj", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_ledObject);
+            //Initialize mode and bright.
+            _ram_led_obj?.Software_Control(1, -1, 0, 9, true);
+            _ledObject.bSyncRAM = false;
+            _ledObject.bSyncVGA = false;
             _initialized = true;
-
         }
+
+
+        private LedObject _ledObject;
+        private PeripheralDeviceManagement _ram_led_obj;
+        private GBLedPeripherals _gb_led_periphs;
     }
 }
