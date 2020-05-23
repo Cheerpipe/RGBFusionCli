@@ -163,6 +163,9 @@
     <Content Include="Libs\LedLib2.dll" />
     <Content Include="Libs\SelLEDControl.dll" />
     <Content Include="Libs\SMBCtrl.dll" />
+    <Content Include="Libs\SMBCtrl2.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
