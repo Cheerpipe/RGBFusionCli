@@ -1,7 +1,4 @@
-using LedLib2;
-using LedLib2.IT8297;
 using Microsoft.Win32;
-using SelLEDControl;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -9,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows;
-
+using System.Windows.Media;
 
 namespace RGBFusionCli
 {
@@ -17,6 +14,7 @@ namespace RGBFusionCli
     {
         private static RgbFusion _controller;
         private static Transaction _transaction;
+        private static bool _shutingDown = false;
 
         [STAThread]
         private static void Main(string[] args)
@@ -54,8 +52,7 @@ namespace RGBFusionCli
 
         private static void SystemEvents_SessionEnding(object sender, SessionEndingEventArgs e)
         {
-            Run(new string[] { "--shutdown" });
-            Thread.Sleep(500);
+            Shutdown();
         }
 
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
@@ -68,11 +65,12 @@ namespace RGBFusionCli
             }
 
             return Assembly.Load(dll.FullName);
-
         }
 
         public static void Run(string[] args)
         {
+            if (_shutingDown)
+                return;
             int waitTimeOut = 0;
             while ((_controller?.IsInitialized() == false) && (waitTimeOut < 5000))//We will wait for ¿5? seconds to get all things initialized, if we take more time the command will be discarded.
             {
@@ -118,11 +116,7 @@ namespace RGBFusionCli
 
             if (CommandLineParser.GeShutdownCommand(args))
             {
-                //Shutdown this shit
-                Run(new string[] { "--sa:-1:0:0:0:0" });
-                Thread.Sleep(500);
-                _controller.Shutdown();
-                Thread.Sleep(500);
+                Shutdown();
             }
 
             int _profileCommandIndex = CommandLineParser.LoadProfileCommand(args);
@@ -132,6 +126,14 @@ namespace RGBFusionCli
             }
             else if (CommandLineParser.GetAreasCommand(args))
                 MessageBox.Show(_controller?.GetAreasReport());
+        }
+
+        private static void Shutdown()
+        {
+            _shutingDown = true;
+            _controller.ChangeColorForAreas(new System.Collections.Generic.List<LedCommand> { new LedCommand { AreaId = -1, NewColor = Color.FromArgb(0, 0, 0, 0) } });
+            Thread.Sleep(500);
+            _controller.Shutdown();
         }
     }
 }

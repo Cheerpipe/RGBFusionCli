@@ -11,6 +11,7 @@ namespace RGBFusionCli
         private Dictionary<int, LedCommand> _transactionLedCmmands;
         private RgbFusion _controller;
         private Timer _transactionMaxAliveTimer;
+        private const int DEFAULT_TRANSACTION_TIMEOUT = 5000;
 
         public void TransactionStart()
         {
@@ -23,6 +24,10 @@ namespace RGBFusionCli
             if (transactionMaxAliveTime > 0)
             {
                 _transactionMaxAliveTimer.Change(transactionMaxAliveTime, transactionMaxAliveTime);
+            }
+            else
+            {
+                _transactionMaxAliveTimer.Change(DEFAULT_TRANSACTION_TIMEOUT, DEFAULT_TRANSACTION_TIMEOUT);
             }
         }
 
