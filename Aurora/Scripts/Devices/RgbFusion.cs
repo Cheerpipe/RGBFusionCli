@@ -128,5 +128,6 @@ public class RGBFusion
 		device_color = color;
 		string command = string.Format(" --sa:{3}:0:{0}:{1}:{2}", Convert.ToInt32(color.R * color.A / 255).ToString(), Convert.ToInt32(color.G * color.A / 255).ToString(), Convert.ToInt32(color.B * color.A / 255).ToString(), area.ToString());
 		SendArgs(new string[] { command });
+
     }
 }
