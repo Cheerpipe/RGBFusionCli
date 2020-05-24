@@ -8,12 +8,8 @@ namespace RGBFusionCli.Wrappers
 
     public static class KingstonFury
     {
-        [DllImport("SMBCtrl.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, EntryPoint = "dllexp_MCU_Rw", ExactSpelling = false)]
+        [DllImport("SMBCtrl.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, EntryPoint = "dllexp_MCU_Rw", ExactSpelling = true)]
         private static extern UIntPtr MCU_Rw(byte mcuAddr, byte regOffset, byte val, ref byte pVal, byte rw, uint delayTime = 0);
-
-        [DllImport("SMBCtrl.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, EntryPoint = "dllexp_Skx_SMB_ByteRW", ExactSpelling = true)]
-        private static extern uint Skx_SMB_ByteRW(byte controller, byte mcuAddr, byte regOffset, byte val, ref byte pVal, byte rw);
-                                                         //0x27
         private static byte pNull = 0;
         private static byte mcuAddr = 78; //Specific for controlling Kingstom RAM from MCU
         private static int staticAllCommandDelay = 6;
@@ -58,9 +54,10 @@ namespace RGBFusionCli.Wrappers
             _ = MCU_Rw(mcuAddr, 0xe1, 0x03, ref pNull, 0, 0); // Apply command
         }
 
+        private static Color _currentSingleColor = Color.FromArgb(0, 0, 0, 0);
         public static void SetDirect(Color color)
         {
-            if (!_settingRAMLed)
+            if (!_settingRAMLed && !Color.Equals(color, _currentSingleColor))
             {
                 _settingRAMLed = true;
                 _ = MCU_Rw(mcuAddr, 0xe1, 0x01, ref pNull, 0, 0); //Start command
@@ -75,6 +72,7 @@ namespace RGBFusionCli.Wrappers
                 Thread.Sleep(staticAllCommandDelay);
                 _ = MCU_Rw(mcuAddr, 0xe1, 0x03, ref pNull, 0, 0); // Apply command
                 Thread.Sleep(staticAllCommandDelay);
+                _currentSingleColor = color;
                 _settingRAMLed = false;
             }
         }
