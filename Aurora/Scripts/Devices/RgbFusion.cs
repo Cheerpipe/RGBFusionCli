@@ -15,7 +15,6 @@ public class RGBFusion
 {
     public string devicename = "RGB Fusion";
     public bool enabled = true; //Switch to True, to enable it in Aurora
-    private Color device_color = Color.Black;
 
     public bool Initialize()
     {
@@ -79,15 +78,18 @@ public class RGBFusion
         }
     }
 
+	private static Color _initialColor = Color.FromArgb(0, 0, 0);
+	
     private List<DeviceMapState> deviceMap = new List<DeviceMapState>
     {
-      new DeviceMapState(1, Color.FromArgb(0, 0, 0), DeviceKeys.ADDITIONALLIGHT5),
-      new DeviceMapState(2, Color.FromArgb(0, 0, 0), DeviceKeys.ADDITIONALLIGHT8),
-      new DeviceMapState(3, Color.FromArgb(0, 0, 0), DeviceKeys.ADDITIONALLIGHT11),
-      new DeviceMapState(5, Color.FromArgb(0, 0, 0), DeviceKeys.ADDITIONALLIGHT14),
-      new DeviceMapState(6, Color.FromArgb(0, 0, 0), DeviceKeys.ADDITIONALLIGHT17),
-      new DeviceMapState(8, Color.FromArgb(0, 0, 0), DeviceKeys.ADDITIONALLIGHT20),
-      new DeviceMapState(9, Color.FromArgb(0, 0, 0), DeviceKeys.ADDITIONALLIGHT22)
+		//             To Area/Key				   From DeviceKey
+		new DeviceMapState(1, _initialColor, DeviceKeys.MBAREA_6),
+		new DeviceMapState(2, _initialColor, DeviceKeys.MBAREA_3),
+		new DeviceMapState(3, _initialColor, DeviceKeys.MBAREA_2),
+		new DeviceMapState(5, _initialColor, DeviceKeys.MBAREA_0),
+		new DeviceMapState(6, _initialColor, DeviceKeys.MBAREA_4),
+		new DeviceMapState(8, _initialColor, DeviceKeys.MBAREA_1),
+		new DeviceMapState(9, _initialColor, DeviceKeys.MBAREA_5)
     };
 
     bool _deviceChanged = true;
@@ -97,7 +99,7 @@ public class RGBFusion
         {
             foreach (KeyValuePair<DeviceKeys, Color> key in keyColors)
             {
-                if (key.Key == DeviceKeys.ADDITIONALLIGHT5)
+                if (key.Key == DeviceKeys.MBAREA_0)
                 {
 					if (_deviceChanged)
 						SendArgs(new string[] { "--transactioncommit" });
@@ -125,9 +127,7 @@ public class RGBFusion
     //Custom method to send the color to the device
     private void SendColorToDevice(Color color, int area = -1)
     {
-		device_color = color;
 		string command = string.Format(" --sa:{3}:0:{0}:{1}:{2}", Convert.ToInt32(color.R * color.A / 255).ToString(), Convert.ToInt32(color.G * color.A / 255).ToString(), Convert.ToInt32(color.B * color.A / 255).ToString(), area.ToString());
 		SendArgs(new string[] { command });
-
     }
 }
