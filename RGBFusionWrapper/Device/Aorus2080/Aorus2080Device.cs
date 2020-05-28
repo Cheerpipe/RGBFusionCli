@@ -27,7 +27,7 @@ namespace RGBFusionCli.Device.Aorus2080
                 _changingColor = true;
                 int _VGARGBNewColor = ((_newLedData[0] & 0x0ff) << 16) | ((_newLedData[1] & 0x0ff) << 8) | (_newLedData[2] & 0x0ff);
                 _curSetting.dwColor = (uint)_VGARGBNewColor & 16777215;
-                _curSetting.nSync = 1;
+                _curSetting.nSync = -1;
                 _ = GvLedSet(4097, _curSetting);
                 Thread.Sleep(50);
                 base.Apply();
