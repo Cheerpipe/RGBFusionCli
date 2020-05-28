@@ -24,14 +24,14 @@ namespace RGBFusionAuroraListener
             DeviceController.Devices.Add(new Aorus2080Device());
             DeviceController.Devices.Add(new Z390DledPinHeaderDevice(_RGBFusionLoader));
             DeviceController.InitAll();
-
+           
             DeviceController.GetDeviceByType(DeviceType.RGBFusion).AddLedIndexToIgnoreList(0);
             DeviceController.GetDeviceByType(DeviceType.RGBFusion).AddLedIndexToIgnoreList(4);
             DeviceController.GetDeviceByType(DeviceType.RGBFusion).AddLedIndexToIgnoreList(5);
             DeviceController.GetDeviceByType(DeviceType.RGBFusion).AddLedIndexToIgnoreList(7);
             DeviceController.GetDeviceByType(DeviceType.RGBFusion).AddLedIndexToIgnoreList(8);
             DeviceController.GetDeviceByType(DeviceType.RGBFusion).AddLedIndexToIgnoreList(9);
-
+            
             Listener _listener = new Listener();
             _listener.StartArgsPipeServer();
 

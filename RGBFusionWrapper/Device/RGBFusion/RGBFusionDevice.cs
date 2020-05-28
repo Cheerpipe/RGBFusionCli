@@ -91,7 +91,7 @@ namespace RGBFusionCli.Device.RGBFusion
                 GetAreaClassesFromLedData();
                 _RGBFusionController.RGBFusion.Set_Adv_mode(applyAreaClasses, true);
                 base.Apply();
-                _changingColor = true;
+                _changingColor = false;
             }
         }
     }
