@@ -12,7 +12,7 @@ namespace RGBFusionCli.Device.KingstonFury
         private static extern UIntPtr MCU_Rw(byte mcuAddr, byte regOffset, byte val, ref byte pVal, byte rw, uint delayTime = 0);
         private byte _pNull = 0;
         private byte _mcuAddr = 78; //Specific for controlling Kingstom RAM from MCU
-        private int _staticAllCommandDelay = 15;
+        private int _staticAllCommandDelay = 1;
         private bool _changingColor = false;
 
         public override void Init()

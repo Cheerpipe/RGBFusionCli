@@ -57,7 +57,7 @@ namespace RGBFusionCli.Device
         {
             Array.Copy(_newLedData, _currentLedData, _currentLedData.Length);
             _transactionStarted = false;
-            Thread.Sleep(5);
+            Thread.Sleep(1);
         }
 
         public void Cancel()

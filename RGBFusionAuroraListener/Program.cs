@@ -35,7 +35,7 @@ namespace RGBFusionAuroraListener
             Listener _listener = new Listener();
             _listener.StartArgsPipeServer();
 
-          do { Thread.Sleep(1000); } while (true);
+          do { Thread.Sleep(10); } while (true);
         }
     }
 }

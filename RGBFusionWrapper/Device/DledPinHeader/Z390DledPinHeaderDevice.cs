@@ -43,10 +43,14 @@ namespace RGBFusionCli.Device.DledPinHeader
         private bool _changingColor = false;
         public override void Apply()
         {
-            _changingColor = true;
-            _dledController.OutputLED(_newLedData);
-            base.Apply();
-            _changingColor = false;
+            if (!_changingColor)
+            {
+                _changingColor = true;
+
+                _dledController.OutputLED(_newLedData);
+                base.Apply();
+                _changingColor = false;
+            }
 
         }
     }
