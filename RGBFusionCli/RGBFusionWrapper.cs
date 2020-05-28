@@ -2,33 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
+
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
-using Gigabyte.ULightingEffects.Devices;
-using LedLib2;
-using LedLib2.GBPeripheralsLedAPI;
-using RGBFusionCli.Wrappers;
-using SelLEDControl;
+
 
 namespace RGBFusionCli
 {
     public class RgbFusion
     {
-        private const int REPEAT_LAST_COMMAND_TIMEOUT = 70; //ms to wait to re send last color to rams to ensure it change after a command flow
-        public Comm_LED_Fun _ledFun;
-        public Comm_LED_Fun _ledFunSlow;
-        private bool _areaChangeApplySuccess;
-        private bool _scanDone;
-        private Dictionary<int, CommUI.Area_class> _allAreaInfo = new Dictionary<int, CommUI.Area_class>();
 
         private List<LedCommand> _commands;
         private bool _initialized;
         private Color _RAMNewColor = Color.FromArgb(0, 0, 0, 0);
         private Thread _MainBoardRingCommandsThread;
         readonly ManualResetEvent _MainBoardRingCommandEvent = new ManualResetEvent(false);
-        private List<CommUI.Area_class> MainboardCommandsCommands = new List<CommUI.Area_class>();
         private Timer _repeatLastCommandTimer;
 
         public bool IsInitialized()
@@ -289,17 +278,20 @@ namespace RGBFusionCli
                 area.Pattern_info.Speed = command.Speed;
                 area.Pattern_info.But_Args = CommUI.Get_Color_Sceenes_class_From_Brush(area.Pattern_info.Bg_Brush_Solid);
 
-                if (area.Ext_Area_id == ExtLedDev.None) //Mainboard
+                if (area.Ext_Area_id == ExtLedDev.None && area.Area_index != 5) //Mainboard and not Dled pin header
                 {
-                    //TODO: Find lower level call and use it
                     MainboardCommandsCommands.Add(area);
                 }
-                else if (area.Ext_Area_id == ExtLedDev.Kingston_RAM && _ledObject.MB_Id == MBIdentify.I_Z390)
+                if (area.Ext_Area_id == ExtLedDev.None && area.Area_index == 5) //Mainboard and not Dled pin header
+                {
+                    MainboardCommandsCommands.Add(area);
+                }
+                else if (area.Ext_Area_id == ExtLedDev.Kingston_RAM /*&& _ledObject.MB_Id == MBIdentify.I_Z390*/)
                 {
                     _RAMNewColor = command.NewColor;
-                    new Task(() => { SetRamColor(command.NewColor); }).Start(); //Direct using MCU. Faster than using RGBFusion HAL.
+                    new Task(() => { SetRamColor(command.NewColor); }).Start();
                 }
-                else if (area.Ext_Area_id == ExtLedDev.GB_VGACard && _gb_led_periphs.GraphicsType == GB_LED_PERIPHERALS.DEVICE_VGA) //KinstoM RAM by Nvidia i2C. A lot faster than setting ram but still slow using rgbfusion methods.
+                else if (area.Ext_Area_id == ExtLedDev.GB_VGACard /*&& _gb_led_periphs?.GraphicsType == GB_LED_PERIPHERALS.DEVICE_VGA*/)
                 {
                     new Task(() => { AorusVGA.SetDirect(System.Drawing.Color.FromArgb(255, command.NewColor.R, command.NewColor.G, command.NewColor.B)); }).Start(); //Direct GvLedLib lib. A lot faster than RGBFusion HAL.
                 }
@@ -334,15 +326,6 @@ namespace RGBFusionCli
 
         public void SetRamColor(Color color)
         {
-            /*
-            KingstonFury.InitLedCommand();
-            KingstonFury.SetIndependentMode();
-            KingstonFury.SetDimColor(0, color);
-            KingstonFury.SetDimColor(1, color);
-            KingstonFury.SetDimColor(2, color);
-            KingstonFury.SetDimColor(3, color);
-            KingstonFury.ApplyLedCOmmand();
-            */
             KingstonFury.SetDirect(color);
         }
 
@@ -363,39 +346,29 @@ namespace RGBFusionCli
         private void CallBackLedFunApplyScanPeripheralSuccess() => _scanDone = true;
         private void CallBackLedFunApplyEzSuccess() => _areaChangeApplySuccess = true;
         private void CallBackLedFunApplyAdvSuccess() => _areaChangeApplySuccess = true;
+
         private void DoInit()
         {
-            _repeatLastCommandTimer = new Timer(new TimerCallback(SetLastRamColorTimerTick), null, Timeout.Infinite, Timeout.Infinite); //70ms apperas to be the lower vald value. 100 is even better but dont look good.
-            _ledFun = new Comm_LED_Fun(false);
-            _ledFun.Apply_ScanPeriphera_Scuuess += CallBackLedFunApplyScanPeripheralSuccess;
-            _ledFun.ApplyEZ_Success += CallBackLedFunApplyEzSuccess;
-            _ledFun.ApplyAdv_Success += CallBackLedFunApplyAdvSuccess;
-            _ledFun.Ini_LED_Fun();
-            do
-            {
-                Thread.Sleep(10);
-            }
-            while (!_scanDone);
+            RGBFusionLoader _RGBFusionLoader = new RGBFusionLoader();
+            _RGBFusionLoader.Load();
 
-            _ledFun.Current_Mode = 1;
+            DeviceController.Devices.Add(new RGBFusionDevice(_RGBFusionLoader, true));
+            DeviceController.Devices.Add(new KingstonFuryDevice());
+            DeviceController.Devices.Add(new Aorus2080Device());
+            DeviceController.Devices.Add(new Z390DledPinHeaderDevice(_RGBFusionLoader));
 
-            _ledFun.Led_Ezsetup_Obj.PoweronStatus = 0;
-            _ledFun.Set_Sync(false);
+            DeviceController.InitAll();
 
-            _ledObject = (LedObject)typeof(Comm_LED_Fun).GetField("LedObj", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(this._ledFun);
-            _gb_led_periphs = (GBLedPeripherals)typeof(LedObject).GetField("gb_led_periphs", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_ledObject);
-            _ram_led_obj = (PeripheralDeviceManagement)typeof(LedObject).GetField("ram_led_obj", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_ledObject);
-            _ram_led_obj?.Software_Control(1, -1, 0, 9, true);  //Initialize mode and bright.
-            _ledObject.bSyncRAM = false;
-            _ledObject.bSyncVGA = false;
-            _initialized = true;
-            KingstonFury.InitLedCommand();
-            KingstonFury.SetSingleColorMode();
-            KingstonFury.ApplyLedCOmmand();
+            DeviceController.GetDeviceByType(DeviceType.RGBFusion).SetLed(System.Drawing.Color.FromArgb(255, 0, 0, 255), 1);
+            DeviceController.GetDeviceByType(DeviceType.RGBFusion).SetLed(System.Drawing.Color.FromArgb(255, 0, 0, 255), 2);
+            DeviceController.GetDeviceByType(DeviceType.RGBFusion).SetLed(System.Drawing.Color.FromArgb(255, 0, 0, 255), 3);
+            DeviceController.GetDeviceByType(DeviceType.RGBFusion).SetLed(System.Drawing.Color.FromArgb(255, 0, 0, 255), 5);
+            DeviceController.GetDeviceByType(DeviceType.RGBFusion).SetLed(System.Drawing.Color.FromArgb(255, 0, 0, 255), 6);
+            DeviceController.GetDeviceByType(DeviceType.RGBFusion).SetLed(System.Drawing.Color.FromArgb(255, 0, 0, 255), 7);
+            DeviceController.GetDeviceByType(DeviceType.RGBFusion).SetLed(System.Drawing.Color.FromArgb(255, 0, 0, 255), 8);
+            DeviceController.GetDeviceByType(DeviceType.RGBFusion).SetLed(System.Drawing.Color.FromArgb(255, 0, 0, 255), 9);
+
+            DeviceController.ApplyAll();
         }
-
-        private LedObject _ledObject;
-        private PeripheralDeviceManagement _ram_led_obj;
-        private GBLedPeripherals _gb_led_periphs;
     }
 }

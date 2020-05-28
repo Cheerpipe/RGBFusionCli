@@ -28,11 +28,11 @@ namespace RGBFusionCli
 
             if (instanceCount > 1)
             {
-                pipeInterOp.SendArgs(args);
-                return;
+         //       pipeInterOp.SendArgs(args);
+          //      return;
             }
 
-            Util.SetPriorityProcessAndThreads(Process.GetCurrentProcess().ProcessName, ProcessPriorityClass.Idle, ThreadPriorityLevel.Lowest);
+           // Util.SetPriorityProcessAndThreads(Process.GetCurrentProcess().ProcessName, ProcessPriorityClass.Idle, ThreadPriorityLevel.Lowest);
 
             _controller = new RgbFusion();
             _transaction = new Transaction(_controller);

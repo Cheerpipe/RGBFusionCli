@@ -29,6 +29,7 @@ namespace RGBFusionCli
 
         public void SendArgs(string[] args)
         {
+            return;
             using (var pipe = new NamedPipeClientStream(".", "RGBFusion390SetColor", PipeDirection.Out))
             using (var stream = new StreamWriter(pipe))
             {
