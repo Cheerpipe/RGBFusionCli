@@ -10,12 +10,22 @@ namespace RGBFusionCli
     {
         private bool _StopListening = false;
         private byte _maxCommandLenght;
-        public void StartArgsPipeServer(string pipeName = "RGBFusionAuroraListener", byte maxCommandLenght = 6)
+
+        public bool Listening { get => !_StopListening; }
+
+        public void Start(string pipeName = "RGBFusionAuroraListener", byte maxCommandLenght = 6)
         {
             _maxCommandLenght = maxCommandLenght;
             var s = new NamedPipeServerStream(pipeName, PipeDirection.In);
             Action<NamedPipeServerStream> a = GetArgsCallBack;
             a.BeginInvoke(s, callback: ar => { }, @object: null);
+        }
+
+
+
+        public void Stop()
+        {
+            _StopListening = true;
         }
 
         private void GetArgsCallBack(NamedPipeServerStream pipe)
@@ -24,6 +34,8 @@ namespace RGBFusionCli
             while (!_StopListening)
             {
                 pipe.WaitForConnection();
+                if (_StopListening)
+                    return;
                 var sr = new BinaryReader(pipe);
                 var command = sr.ReadBytes(_maxCommandLenght);
                 pipe.Disconnect();

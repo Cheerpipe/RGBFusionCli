@@ -51,7 +51,12 @@ namespace RGBFusionCli.Device.DledPinHeader
                 base.Apply();
                 _changingColor = false;
             }
+        }
 
+        public override void Shutdown()
+        {
+            for (int p = 0; p < _newLedData.Length; p++) { _newLedData[p] = 0; }
+            Apply();
         }
     }
 }

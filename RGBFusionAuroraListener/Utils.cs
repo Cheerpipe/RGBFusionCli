@@ -6,7 +6,6 @@ namespace RGBFusionCli
 {
     public class Util
     {
-
         [DllImport(dllName: "kernel32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool SetProcessWorkingSetSize(IntPtr process, UIntPtr minimumWorkingSetSize, UIntPtr maximumWorkingSetSize);
@@ -14,7 +13,7 @@ namespace RGBFusionCli
         {
             GC.Collect(GC.MaxGeneration);
             GC.WaitForPendingFinalizers();
-            SetProcessWorkingSetSize(Process.GetCurrentProcess().Handle,(UIntPtr)0xFFFFFFFF,  (UIntPtr)0xFFFFFFFF);
+            SetProcessWorkingSetSize(Process.GetCurrentProcess().Handle, (UIntPtr)0xFFFFFFFF, (UIntPtr)0xFFFFFFFF);
         }
 
         public static void SetPriorityProcessAndThreads(string nameProcess, ProcessPriorityClass processPriority, ThreadPriorityLevel threadPriorityLevel)

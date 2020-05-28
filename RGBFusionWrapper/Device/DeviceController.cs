@@ -32,5 +32,13 @@ namespace RGBFusionCli.Device
                 d.Init();
             }
         }
+
+        public static void Shutdown()
+        {
+            foreach (IDevice d in _devices)
+            {
+                new Task(() => { d.Shutdown(); }).Start();
+            }
+        }
     }
 }

@@ -7,8 +7,8 @@
     <ProjectGuid>{8659E082-257E-4BA8-B870-F0506903DDA9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RGBFusionWrapper</RootNamespace>
-    <AssemblyName>RGBFusionWrapper</AssemblyName>
+    <RootNamespace>RGBFusionBirdge</RootNamespace>
+    <AssemblyName>RGBFusionBirdge</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

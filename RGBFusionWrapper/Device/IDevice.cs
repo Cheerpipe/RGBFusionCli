@@ -18,5 +18,6 @@ namespace RGBFusionCli.Device
         DeviceType GetDeviceType();
         bool AddLedIndexToIgnoreList(int ledIndex);
         bool RemoveLedIndexToIgnoreList(int ledIndex);
+        void Shutdown();
     }
 }

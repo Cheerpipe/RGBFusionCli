@@ -11,7 +11,6 @@ namespace RGBFusionCli.Device
     {
         protected HashSet<int> _ledIndexes = new HashSet<int>();
         protected HashSet<int> _ignoreLedIndexes = new HashSet<int>();
-        protected bool _transactionStarted = false;
         protected byte[] _currentLedData;
         protected byte[] _newLedData;
         protected DeviceType _deviceType = DeviceType.Unknown;
@@ -56,14 +55,12 @@ namespace RGBFusionCli.Device
         public virtual void Apply()
         {
             Array.Copy(_newLedData, _currentLedData, _currentLedData.Length);
-            _transactionStarted = false;
             Thread.Sleep(1);
         }
 
         public void Cancel()
         {
             Array.Copy(_currentLedData, _newLedData, _currentLedData.Length);
-            _transactionStarted = false;
         }
 
         public virtual DeviceType GetDeviceType()
@@ -97,6 +94,8 @@ namespace RGBFusionCli.Device
                 return false;
             }
         }
-    }
 
+        public abstract void Shutdown();
+
+    }
 }

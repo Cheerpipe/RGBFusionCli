@@ -74,12 +74,12 @@ namespace RGBFusionCli.Device.RGBFusion
 
         public void SetMainboardRingAreas()
         {
-            while (_RGBFusionControllerThread.IsAlive)
+            do
             {
                 _RGBFusionControllerApplyEvent.WaitOne();
                 DoApply();
                 _RGBFusionControllerApplyEvent.Reset();
-            }
+            } while (_RGBFusionControllerThread.IsAlive && !_terminateDeviceThread);
         }
 
         private bool _changingColor = false;
@@ -93,6 +93,13 @@ namespace RGBFusionCli.Device.RGBFusion
                 base.Apply();
                 _changingColor = false;
             }
+        }
+        private bool _terminateDeviceThread = false;
+        public override void Shutdown()
+        {
+            _terminateDeviceThread = true;
+            for (int p = 0; p < _newLedData.Length; p++) { _newLedData[p] = 0; }
+            Apply();
         }
     }
 }

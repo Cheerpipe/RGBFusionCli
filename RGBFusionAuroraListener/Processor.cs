@@ -30,7 +30,12 @@ namespace RGBFusionAuroraListener
                     break;
 
                 case 5://Shutdown
-                       // DeviceController.GetDeviceByType(command.DeviceType).RemoveLedIndexToIgnoreList(command.LedIndex);
+                    Program._listener.Stop();
+                    if (command.DeviceType == DeviceType.Unknown)
+                        DeviceController.Shutdown();
+                    else
+                        DeviceController.GetDeviceByType(command.DeviceType).Shutdown();
+
                     break;
             }
         }
