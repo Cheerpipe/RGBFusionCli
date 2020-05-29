@@ -1,6 +1,7 @@
 ﻿using RGBFusionCli.Device;
 using System;
 using System.Drawing;
+using System.Threading;
 
 namespace RGBFusionAuroraListener
 {
@@ -35,7 +36,8 @@ namespace RGBFusionAuroraListener
                         DeviceController.Shutdown();
                     else
                         DeviceController.GetDeviceByType(command.DeviceType).Shutdown();
-
+                    Thread.Sleep(1000);
+                    System.Windows.Forms.Application.Exit();
                     break;
             }
         }

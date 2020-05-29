@@ -9,23 +9,23 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+
 using System.Windows.Controls;
+using System.Windows.Forms;
 
 namespace RGBFusionAuroraListener
 {
     public static class Program
     {
         internal static RGBFusionLoader _RGBFusionLoader = new RGBFusionLoader();
-        internal static Control invokerControl = new Control();
         internal static Listener _listener = new Listener();
-        static Mutex mutex = new Mutex(true, "{16eb92ae-ef75-4b7b-a514-7ea1ff92eaf8}");
+        internal static Mutex _singleInstanceMutex = new Mutex(true, "{16eb92ae-ef75-4b7b-a514-7ea1ff92eaf8}");
 
         [STAThread]
         static void Main(string[] args)
         {
             //No more than one instance runing
-
-            if (!mutex.WaitOne(TimeSpan.Zero, true))
+            if (!_singleInstanceMutex.WaitOne(TimeSpan.Zero, true))
                 return;
 
             Util.SetPriorityProcessAndThreads(Process.GetCurrentProcess().ProcessName, ProcessPriorityClass.Idle, ThreadPriorityLevel.Lowest);
@@ -34,9 +34,6 @@ namespace RGBFusionAuroraListener
 
             _RGBFusionLoader.Load();
             DeviceController.Devices.Add(new RGBFusionDevice(_RGBFusionLoader, true));
-            //DeviceController.Devices.Add(new KingstonFuryDevice());
-            //DeviceController.Devices.Add(new Aorus2080Device());
-            //DeviceController.Devices.Add(new Z390DledPinHeaderDevice(_RGBFusionLoader));
 
             if (args.Contains("--kingstondriver"))
             {
@@ -62,13 +59,15 @@ namespace RGBFusionAuroraListener
             }
 
             _listener.Start();
-            do { Thread.Sleep(10); } while (_listener.Listening);
-            Thread.Sleep(1000);
+            Application.Run();
         }
 
         private static void SystemEvents_SessionEnding(object sender, SessionEndingEventArgs e)
         {
+            _listener.Stop();
             DeviceController.Shutdown();
+            Thread.Sleep(1000);
+            Application.Exit();
         }
     }
 }
