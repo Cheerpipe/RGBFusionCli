@@ -24,8 +24,6 @@ namespace RGBFusionCli
         public void Stop()
         {
             _StopListening = true;
-            // IAsyncResult result = null;
-            
             if (_namedPipeServerStream.IsConnected)
                 _namedPipeServerStream.Disconnect();
             _namedPipeServerStream.Close();

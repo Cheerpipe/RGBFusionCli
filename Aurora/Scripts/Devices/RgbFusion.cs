@@ -26,7 +26,7 @@ public class RGBFusion
 				Shutdown();
 			}
 			catch { }
-			Process.Start(@"C:\Program Files (x86)\GIGABYTE\RGBFusion\RGBFusionAuroraListener.exe", @"--kingstondriver --aorusvgadriver --dleddriver --ignoreled:0,4,5,7,8,9");
+			Process.Start(@"C:\Program Files (x86)\GIGABYTE\RGBFusion\RGBFusionAuroraListener.exe");
 			return true;
 		}
 		catch (Exception exc)
