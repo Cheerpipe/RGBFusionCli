@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace RGBFusionCli.Device.KingstonFury
+namespace RGBFusionBridge.Device.KingstonFury
 {
     public class KingstonFuryDevice : Device
     {

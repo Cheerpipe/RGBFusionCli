@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RGBFusionCli.Device
+namespace RGBFusionBridge.Device
 {
     public interface IDevice
     {

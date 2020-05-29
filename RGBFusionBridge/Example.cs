@@ -1,16 +1,16 @@
-﻿using RGBFusionCli;
-using RGBFusionCli.Device;
-using RGBFusionCli.Device.Aorus2080;
-using RGBFusionCli.Device.DledPinHeader;
-using RGBFusionCli.Device.KingstonFury;
-using RGBFusionCli.Device.RGBFusion;
+﻿using RGBFusionBridge;
+using RGBFusionBridge.Device;
+using RGBFusionBridge.Device.Aorus2080;
+using RGBFusionBridge.Device.DledPinHeader;
+using RGBFusionBridge.Device.KingstonFury;
+using RGBFusionBridge.Device.RGBFusion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RGBFusionWrapper
+namespace RGBFusionBridge
 {
     class Example
     {

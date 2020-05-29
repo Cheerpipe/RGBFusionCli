@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Gigabyte.ULightingEffects.Win32;
 
-namespace RGBFusionCli.Device.Aorus2080
+namespace RGBFusionBridge.Device.Aorus2080
 {
     public class Aorus2080Device : Device
     {

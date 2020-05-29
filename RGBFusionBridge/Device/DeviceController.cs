@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RGBFusionCli.Device
+namespace RGBFusionBridge.Device
 {
     public static class DeviceController
     {

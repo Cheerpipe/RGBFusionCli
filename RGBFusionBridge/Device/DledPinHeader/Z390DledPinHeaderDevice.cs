@@ -7,7 +7,7 @@ using LedLib2.IT8297;
 using System.Threading;
 using System.Drawing;
 
-namespace RGBFusionCli.Device.DledPinHeader
+namespace RGBFusionBridge.Device.DledPinHeader
 {
     public class Z390DledPinHeaderDevice : Device
     {

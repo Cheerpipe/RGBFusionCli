@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Pipes;
 
 
-namespace RGBFusionCli
+namespace RGBFusionAuroraListener
 {
     public class Listener
     {

@@ -6,7 +6,7 @@ using System.Threading;
 using System.Windows.Media;
 using SelLEDControl;
 
-namespace RGBFusionCli
+namespace RGBFusionBridge
 {
     public class RGBFusionLoader
     {

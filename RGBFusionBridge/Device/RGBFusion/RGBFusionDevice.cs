@@ -6,7 +6,7 @@ using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace RGBFusionCli.Device.RGBFusion
+namespace RGBFusionBridge.Device.RGBFusion
 {
     public class RGBFusionDevice : Device
     {

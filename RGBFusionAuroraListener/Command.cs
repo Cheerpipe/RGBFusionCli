@@ -1,4 +1,4 @@
-﻿using RGBFusionCli.Device;
+﻿using RGBFusionBridge.Device;
 using System;
 using System.Collections.Generic;
 using System.Linq;

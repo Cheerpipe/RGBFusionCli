@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 
-namespace RGBFusionCli.Device
+namespace RGBFusionBridge.Device
 {
     public abstract class Device : IDevice
     {
