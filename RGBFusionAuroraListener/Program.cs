@@ -22,6 +22,15 @@ namespace RGBFusionAuroraListener
         [STAThread]
         static void Main(string[] args)
         {
+            if (args.Contains("--ngen"))
+            {
+                Util.ngen(Util.NgenOperation.Install);
+            }
+            if (args.Contains("--unngen"))
+            {
+                Util.ngen(Util.NgenOperation.Uninstall);
+            }
+
             //No more than one instance runing
             if (!_singleInstanceMutex.WaitOne(TimeSpan.Zero, true))
                 return;
