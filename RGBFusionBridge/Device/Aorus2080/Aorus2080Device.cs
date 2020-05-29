@@ -1,16 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Threading;
 using Gigabyte.ULightingEffects.Win32;
 
 namespace RGBFusionBridge.Device.Aorus2080
 {
+    [SuppressUnmanagedCodeSecurity()]
     public class Aorus2080Device : Device
     {
         [DllImport("GvLedLib.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, EntryPoint = "dllexp_GvLedSet", ExactSpelling = true)]
-        private static extern UIntPtr GvLedSet(int nIndex, GVLED_CFG_V1 config);
+        public static extern uint GvLedSet(int nIndex, GVLED_CFG_V1 config);
+
+       
+        [DllImport("GvLedLib.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "dllexp_GvLedSave", ExactSpelling = true)]
+        public static extern uint GvLedSave(int nIndex, GVLED_CFG_V1 config);
+       
+
         private GVLED_CFG_V1 _curSetting = new GVLED_CFG_V1(1, 0, 0, 0, 10, 16711680);
         private bool _changingColor = false;
 
