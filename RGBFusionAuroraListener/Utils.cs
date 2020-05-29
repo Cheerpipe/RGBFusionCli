@@ -38,23 +38,23 @@ namespace RGBFusionAuroraListener
 		{
 			string fileName = Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), "ngen.exe");
 			string executablePath = Application.ExecutablePath;
-			string arg = (ngenOperation == Util.NgenOperation.Install) ? "install" : "uninstall";
+			string operation = (ngenOperation == Util.NgenOperation.Install) ? "install" : "uninstall";
 			string name = Assembly.GetExecutingAssembly().GetName().Name;
 			Process process = new Process();
 			process.StartInfo.FileName = fileName;
 			process.StartInfo.CreateNoWindow = false;
 			process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-			process.StartInfo.Arguments = string.Format("{0} {1}", arg, executablePath);
+			process.StartInfo.Arguments = string.Format("{0} \"{1}\"", operation, executablePath);
 			process.Start();
 			process.WaitForExit();
 			bool flag = process.ExitCode == 0;
 			if (flag)
 			{
-				MessageBox.Show(string.Format("NGEN operaction {0} on assembly {1} executed successfully.", arg, name));
+				MessageBox.Show(string.Format("NGEN operaction {0} on assembly {1} executed successfully.", operation, name));
 			}
 			else
 			{
-				MessageBox.Show(string.Format("NGEN operaction {0} on assembly {1} failed with code {2}.", arg, name, process.ExitCode));
+				MessageBox.Show(string.Format("NGEN operaction {0} on assembly {1} failed with code {2}.", operation, name, process.ExitCode));
 			}
 		}
 

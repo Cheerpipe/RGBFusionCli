@@ -25,10 +25,12 @@ namespace RGBFusionAuroraListener
             if (args.Contains("--ngen"))
             {
                 Util.ngen(Util.NgenOperation.Install);
+                return;
             }
             if (args.Contains("--unngen"))
             {
                 Util.ngen(Util.NgenOperation.Uninstall);
+                return;
             }
 
             //No more than one instance runing
