@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Aurora\Scripts\Devices\RgbFusion.cs = Aurora\Scripts\Devices\RgbFusion.cs
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RGBFusionBridge", "RGBFusionWrapper\RGBFusionBridge.csproj", "{8659E082-257E-4BA8-B870-F0506903DDA9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RGBFusionBridge", "RGBFusionBridge\RGBFusionBridge.csproj", "{8659E082-257E-4BA8-B870-F0506903DDA9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RGBFusionAuroraListener", "RGBFusionAuroraListener\RGBFusionAuroraListener.csproj", "{713C3360-D6EE-4D8B-9EE4-09DA0895A142}"
 EndProject

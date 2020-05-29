@@ -9,13 +9,11 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-
-using System.Windows.Controls;
 using System.Windows.Forms;
 
 namespace RGBFusionAuroraListener
 {
-    public static class Program
+    internal static class Program
     {
         internal static RGBFusionLoader _RGBFusionLoader = new RGBFusionLoader();
         internal static Listener _listener = new Listener();
@@ -47,6 +45,7 @@ namespace RGBFusionAuroraListener
             {
                 DeviceController.Devices.Add(new Z390DledPinHeaderDevice(_RGBFusionLoader));
             }
+
             DeviceController.InitAll();
 
 
