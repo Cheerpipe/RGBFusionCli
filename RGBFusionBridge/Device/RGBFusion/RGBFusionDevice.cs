@@ -14,7 +14,7 @@ namespace RGBFusionBridge.Device.RGBFusion
         private bool _setAllAreasWithRGBFusion;
         private Dictionary<int, CommUI.Area_class> _allAreaInfo = new Dictionary<int, CommUI.Area_class>();
         private Thread _RGBFusionControllerThread;
-        readonly ManualResetEvent _RGBFusionControllerApplyEvent = new ManualResetEvent(false);
+        private readonly ManualResetEvent _RGBFusionControllerApplyEvent = new ManualResetEvent(false);
 
         public RGBFusionDevice(RGBFusionLoader rgbFusionController, bool setAllAreasWithRGBFusion)
         {
@@ -88,18 +88,29 @@ namespace RGBFusionBridge.Device.RGBFusion
             if (!_changingColor)
             {
                 _changingColor = true;
-                GetAreaClassesFromLedData();
-                _RGBFusionController.RGBFusion.Set_Adv_mode(applyAreaClasses, true);
+                SendColorToRGBFusion();
                 base.Apply();
                 _changingColor = false;
             }
         }
+
+        private void SendColorToRGBFusion()
+        {
+            GetAreaClassesFromLedData();
+            _RGBFusionController.RGBFusion.Set_Adv_mode(applyAreaClasses, true);
+        }
+
         private bool _terminateDeviceThread = false;
         public override void Shutdown()
         {
             _terminateDeviceThread = true;
             for (int p = 0; p < _newLedData.Length; p++) { _newLedData[p] = 0; }
             Apply();
+        }
+
+        protected override void ConfirmApply()
+        {
+            SendColorToRGBFusion();
         }
     }
 }

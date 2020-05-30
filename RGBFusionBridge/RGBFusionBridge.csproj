@@ -59,6 +59,7 @@
     <Compile Include="Device\DeviceController.cs" />
     <Compile Include="Device\DeviceType.cs" />
     <Compile Include="Device\DledPinHeader\Z390DledPinHeaderDevice.cs" />
+    <Compile Include="Device\Example\Example.cs" />
     <Compile Include="Device\IDevice.cs" />
     <Compile Include="Device\KingstonFury\KingstonFuryDevice.cs" />
     <Compile Include="Device\RGBFusion\RGBFusionDevice.cs" />

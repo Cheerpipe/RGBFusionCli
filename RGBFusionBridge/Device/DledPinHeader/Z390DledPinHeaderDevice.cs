@@ -14,7 +14,7 @@ namespace RGBFusionBridge.Device.DledPinHeader
         private RGBFusionLoader _RGBFusionController;
         private LedObject _ledObject;
         private DC_DLED _dledController;
-        Collection_8297 _coll97;
+        private Collection_8297 _coll97;
         public Z390DledPinHeaderDevice(RGBFusionLoader rgbFusionController)
         {
             _RGBFusionController = rgbFusionController;
@@ -46,17 +46,27 @@ namespace RGBFusionBridge.Device.DledPinHeader
             if (!_changingColor)
             {
                 _changingColor = true;
-
-                _dledController.OutputLED(_newLedData);
+                SetColorToDLed();
                 base.Apply();
                 _changingColor = false;
             }
         }
 
+        private void SetColorToDLed()
+        {
+            _dledController.OutputLED(_newLedData);
+        }
+
+
         public override void Shutdown()
         {
             for (int p = 0; p < _newLedData.Length; p++) { _newLedData[p] = 0; }
             Apply();
+        }
+
+        protected override void ConfirmApply()
+        {
+            SetColorToDLed();
         }
     }
 }

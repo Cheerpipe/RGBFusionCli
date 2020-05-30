@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading;
 
 namespace RGBFusionBridge.Device
@@ -14,6 +13,9 @@ namespace RGBFusionBridge.Device
         protected byte[] _currentLedData;
         protected byte[] _newLedData;
         protected DeviceType _deviceType = DeviceType.Unknown;
+        protected Timer _confirmLastCommandTimer;
+        public bool ConfirmLastCommand { get; set; } = true;
+        public int ConfirmLastCommandTimeOut { get; set; } = 100;
 
         public HashSet<int> IgnoreLedIndexes { get => _ignoreLedIndexes; set => _ignoreLedIndexes = value; }
 
@@ -21,6 +23,14 @@ namespace RGBFusionBridge.Device
         {
             return _ledIndexes;
         }
+
+        private void ConfirmLastCommandTimerTick(object state)
+        {
+            StopConfirmCommandTimer();
+            ConfirmApply();
+        }
+
+        protected abstract void ConfirmApply();
 
         public bool LedDataChanged()
         {
@@ -34,6 +44,7 @@ namespace RGBFusionBridge.Device
 
         public virtual void Init()
         {
+            _confirmLastCommandTimer = new Timer(new TimerCallback(ConfirmLastCommandTimerTick), null, Timeout.Infinite, Timeout.Infinite);
             _currentLedData = new byte[_ledIndexes.Count * 3];
             _newLedData = new byte[_ledIndexes.Count * 3];
             if (_deviceType == DeviceType.Unknown)
@@ -56,6 +67,23 @@ namespace RGBFusionBridge.Device
         {
             Array.Copy(_newLedData, _currentLedData, _currentLedData.Length);
             Thread.Sleep(1);
+            RestartConfirmCommandTimer();
+        }
+
+        protected void StartConfirmCommandTimer()
+        {
+            _confirmLastCommandTimer.Change(ConfirmLastCommandTimeOut, ConfirmLastCommandTimeOut);
+        }
+
+        protected void StopConfirmCommandTimer()
+        {
+            _confirmLastCommandTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        }
+
+        protected void RestartConfirmCommandTimer()
+        {
+            StopConfirmCommandTimer();
+            StartConfirmCommandTimer();
         }
 
         public void Cancel()
@@ -88,14 +116,11 @@ namespace RGBFusionBridge.Device
                 _ignoreLedIndexes.Remove(ledIndex);
                 return true;
             }
-
             catch
             {
                 return false;
             }
         }
-
         public abstract void Shutdown();
-
     }
 }
