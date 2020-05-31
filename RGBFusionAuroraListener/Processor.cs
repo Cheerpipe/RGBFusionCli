@@ -14,20 +14,20 @@ namespace RGBFusionAuroraListener
             switch (command.CommandId)
             {
                 case 1://Setled
-                    DeviceController.GetDeviceByType(command.DeviceType).SetLed(Color.FromArgb(command.R, command.G, command.B), command.LedIndex);
+                    DeviceController.GetDeviceByType(command.DeviceType)?.SetLed(Color.FromArgb(command.R, command.G, command.B), command.LedIndex);
                     break;
                 case 2://Apply
                     if (command.DeviceType == DeviceType.Unknown)
                         DeviceController.ApplyAll();
                     else
-                        DeviceController.GetDeviceByType(command.DeviceType).Apply();
+                        DeviceController.GetDeviceByType(command.DeviceType)?.Apply();
                     break;
                 case 3://Add led to ignore list
-                    DeviceController.GetDeviceByType(command.DeviceType).AddLedIndexToIgnoreList(command.LedIndex);
+                    DeviceController.GetDeviceByType(command.DeviceType)?.AddLedIndexToIgnoreList(command.LedIndex);
                     break;
 
                 case 4://Remove led to ignore list
-                    DeviceController.GetDeviceByType(command.DeviceType).RemoveLedIndexToIgnoreList(command.LedIndex);
+                    DeviceController.GetDeviceByType(command.DeviceType)?.RemoveLedIndexToIgnoreList(command.LedIndex);
                     break;
 
                 case 5://Shutdown
@@ -35,7 +35,7 @@ namespace RGBFusionAuroraListener
                     if (command.DeviceType == DeviceType.Unknown)
                         DeviceController.Shutdown();
                     else
-                        DeviceController.GetDeviceByType(command.DeviceType).Shutdown();
+                        DeviceController.GetDeviceByType(command.DeviceType)?.Shutdown();
                     Thread.Sleep(1000);
                     System.Windows.Forms.Application.Exit();
                     break;
