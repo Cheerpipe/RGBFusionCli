@@ -20,7 +20,7 @@ namespace RGBFusionBridge.Device.DledPinHeader
             _RGBFusionController = rgbFusionController;
             _ledObject = (LedObject)typeof(Comm_LED_Fun).GetField("LedObj", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_RGBFusionController._ledFun);
             _coll97 = (Collection_8297)typeof(LedObject).GetField("coll97", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_ledObject);
-            _dledController = (DC_DLED)typeof(LedLib2.IT8297.MCU_8297).GetField("dcStrip0", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_coll97.lstM97[0]);
+            _dledController = (DC_DLED)typeof(MCU_8297).GetField("dcStrip0", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_coll97.lstM97[0]);
         }
 
 

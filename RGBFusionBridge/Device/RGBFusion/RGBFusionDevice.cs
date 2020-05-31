@@ -48,6 +48,7 @@ namespace RGBFusionBridge.Device.RGBFusion
             base.Init();
         }
 
+
         private List<CommUI.Area_class> GetAreaClassesFromLedData()
         {
             applyAreaClasses.Clear();
@@ -59,7 +60,7 @@ namespace RGBFusionBridge.Device.RGBFusion
                 SolidColorBrush solidColorBrush = new SolidColorBrush(Color.FromArgb(255, _newLedData[3 * areaIndex], _newLedData[3 * areaIndex + 1], _newLedData[3 * areaIndex + 2]));
                 area.Pattern_info.Type = 0;
                 area.Pattern_info.Bri = 9;
-                area.Pattern_info.Speed = 2;
+                area.Pattern_info.Speed = -1;
                 area.Pattern_info.But_Args = CommUI.Get_Color_Sceenes_class_From_Brush(solidColorBrush);
                 applyAreaClasses.Add(area);
             }

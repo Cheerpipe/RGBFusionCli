@@ -14,6 +14,7 @@ namespace RGBFusionBridge.Device.ExampleDevice
         {
             if (!_changingColor)
             {
+                _changingColor = true;
                 base.Apply();
                 _changingColor = false;
             }

@@ -15,7 +15,7 @@ namespace RGBFusionBridge.Device
         protected DeviceType _deviceType = DeviceType.Unknown;
         protected Timer _confirmLastCommandTimer;
         public bool ConfirmLastCommand { get; set; } = true;
-        public int ConfirmLastCommandTimeOut { get; set; } = 100;
+        public int ConfirmLastCommandTimeOut { get; set; } = 100000;
 
         public HashSet<int> IgnoreLedIndexes { get => _ignoreLedIndexes; set => _ignoreLedIndexes = value; }
 
