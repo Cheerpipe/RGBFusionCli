@@ -8,8 +8,8 @@ namespace RGBFusionBridge.Device
 {
     public abstract class Device : IDevice
     {
-        protected HashSet<int> _ledIndexes = new HashSet<int>();
-        protected HashSet<int> _ignoreLedIndexes = new HashSet<int>();
+        protected HashSet<byte> _ledIndexes = new HashSet<byte>();
+        protected HashSet<byte> _ignoreLedIndexes = new HashSet<byte>();
         protected byte[] _currentLedData;
         protected byte[] _newLedData;
         protected DeviceType _deviceType = DeviceType.Unknown;
@@ -17,9 +17,9 @@ namespace RGBFusionBridge.Device
         public bool ConfirmLastCommand { get; set; } = true;
         public int ConfirmLastCommandTimeOut { get; set; } = 100000;
 
-        public HashSet<int> IgnoreLedIndexes { get => _ignoreLedIndexes; set => _ignoreLedIndexes = value; }
+        public HashSet<byte> IgnoreLedIndexes { get => _ignoreLedIndexes; set => _ignoreLedIndexes = value; }
 
-        public HashSet<int> GetAreaIndexes()
+        public HashSet<byte> GetAreaIndexes()
         {
             return _ledIndexes;
         }
@@ -37,9 +37,9 @@ namespace RGBFusionBridge.Device
             return !(_newLedData.SequenceEqual(_currentLedData));
         }
 
-        public bool LedIndexIsValid(int ledIndex)
+        public bool LedIndexIsValid(byte ledIndex)
         {
-            return _ledIndexes.Contains(ledIndex);
+            return _ledIndexes.Contains(ledIndex) || ledIndex == 255;
         }
 
         public virtual void Init()
@@ -96,7 +96,7 @@ namespace RGBFusionBridge.Device
             return _deviceType;
         }
 
-        public bool AddLedIndexToIgnoreList(int ledIndex)
+        public bool AddLedIndexToIgnoreList(byte ledIndex)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace RGBFusionBridge.Device
             }
         }
 
-        public bool RemoveLedIndexToIgnoreList(int ledIndex)
+        public bool RemoveLedIndexToIgnoreList(byte ledIndex)
         {
             try
             {

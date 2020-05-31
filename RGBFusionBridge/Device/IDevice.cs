@@ -11,13 +11,13 @@ namespace RGBFusionBridge.Device
     {
         void Init();
         void SetLed(Color color, byte ledIndex);
-        HashSet<int> GetAreaIndexes();
+        HashSet<byte> GetAreaIndexes();
         void Apply();
         void Cancel();
         bool LedDataChanged();
         DeviceType GetDeviceType();
-        bool AddLedIndexToIgnoreList(int ledIndex);
-        bool RemoveLedIndexToIgnoreList(int ledIndex);
+        bool AddLedIndexToIgnoreList(byte ledIndex);
+        bool RemoveLedIndexToIgnoreList(byte ledIndex);
         void Shutdown();
     }
 }

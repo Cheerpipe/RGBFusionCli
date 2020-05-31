@@ -1,9 +1,7 @@
 ﻿using SelLEDControl;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace RGBFusionBridge.Device.RGBFusion
@@ -11,8 +9,7 @@ namespace RGBFusionBridge.Device.RGBFusion
     public class RGBFusionDevice : Device
     {
         private RGBFusionLoader _RGBFusionController;
-        private bool _setAllAreasWithRGBFusion;
-        private Dictionary<int, CommUI.Area_class> _allAreaInfo = new Dictionary<int, CommUI.Area_class>();
+        private Dictionary<byte, CommUI.Area_class> _allAreaInfo = new Dictionary<byte, CommUI.Area_class>();
         private Thread _RGBFusionControllerThread;
         private readonly ManualResetEvent _RGBFusionControllerApplyEvent = new ManualResetEvent(false);
 
@@ -20,39 +17,45 @@ namespace RGBFusionBridge.Device.RGBFusion
         {
             _RGBFusionController = rgbFusionController;
             _allAreaInfo = _RGBFusionController.Areas;
-            _setAllAreasWithRGBFusion = setAllAreasWithRGBFusion;
         }
 
         public override void Init()
         {
             _deviceType = DeviceType.RGBFusion;
-            if (_setAllAreasWithRGBFusion)
+
+            _ledIndexes = new HashSet<byte>();
+
+
+            for (byte i = 0; i <= _RGBFusionController.Areas.Keys.Max(); i++)
             {
-                _ledIndexes = new HashSet<int>();
-                for (int i = 0; i <= _allAreaInfo.Count; i++)
-                {
-                    _ledIndexes.Add(i);
-                }
+                _ledIndexes.Add(i);
             }
-            else
-            {
-                _ledIndexes.Add(0);
-                _ledIndexes.Add(1);
-                _ledIndexes.Add(2);
-                _ledIndexes.Add(3);
-                _ledIndexes.Add(4);
-            }
+
             _RGBFusionControllerThread = new Thread(SetMainboardRingAreas);
             _RGBFusionControllerThread.SetApartmentState(ApartmentState.STA);
             _RGBFusionControllerThread.Start();
             base.Init();
         }
 
+        public override void SetLed(System.Drawing.Color color, byte ledIndex)
+        {
+            if (ledIndex == 255)
+            {
+                foreach (byte led in _ledIndexes)
+                {
+                    base.SetLed(color, led);
+                }
+            }
+            else
+            {
+                base.SetLed(color, ledIndex);
+            }
+        }
 
         private List<CommUI.Area_class> GetAreaClassesFromLedData()
         {
             applyAreaClasses.Clear();
-            for (int areaIndex = 0; areaIndex < _ledIndexes.Count; areaIndex++)
+            for (byte areaIndex = 0; areaIndex < _ledIndexes.Count; areaIndex++)
             {
                 if (!_allAreaInfo.Keys.Contains(areaIndex) || _ignoreLedIndexes.Contains(areaIndex)) //Ignore intermediate area index that don't exists in the motherboard
                     continue;

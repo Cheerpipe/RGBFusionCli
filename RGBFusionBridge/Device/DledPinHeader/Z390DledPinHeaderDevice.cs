@@ -27,7 +27,7 @@ namespace RGBFusionBridge.Device.DledPinHeader
         public override void Init()
         {
             _deviceType = DeviceType.DledPinHeader;
-            for (int l = 0; l < 18; l++)
+            for (byte l = 0; l < 18; l++)
                 _ledIndexes.Add(l);
 
             base.Init();

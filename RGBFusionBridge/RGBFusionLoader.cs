@@ -12,10 +12,10 @@ namespace RGBFusionBridge
     {
         public Comm_LED_Fun _ledFun;
         private bool _scanDone;
-        private Dictionary<int, CommUI.Area_class> _allAreaInfo = new Dictionary<int, CommUI.Area_class>();
+        private Dictionary<byte, CommUI.Area_class> _allAreaInfo = new Dictionary<byte, CommUI.Area_class>();
         private bool _loaded;
 
-        public Dictionary<int, CommUI.Area_class> Areas
+        public Dictionary<byte, CommUI.Area_class> Areas
         {
             get
             {
@@ -55,7 +55,7 @@ namespace RGBFusionBridge
                 patternCombItem.Speed = area.Pattern_info.Speed;
                 patternCombItem.Type = area.Pattern_info.Type;
                 CommUI.Area_class newArea = new CommUI.Area_class(patternCombItem, area.Area_index, null);
-                _allAreaInfo.Add(area.Area_index, newArea);
+                _allAreaInfo.Add((byte)area.Area_index, newArea);
             }
 
             var y = GetAllExtAreaInfo();
@@ -76,7 +76,7 @@ namespace RGBFusionBridge
                 patternCombItem.Type = extArea.Pattern_info.Type;
                 CommUI.Area_class newExtArea = new CommUI.Area_class(patternCombItem, extArea.Area_index, null);
                 newExtArea.Ext_Area_id = extArea.Ext_Area_id;
-                _allAreaInfo.Add(newExtArea.Area_index, newExtArea);
+                _allAreaInfo.Add((byte)newExtArea.Area_index, newExtArea);
             }
         }
 
