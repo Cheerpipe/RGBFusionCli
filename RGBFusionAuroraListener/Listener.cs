@@ -9,11 +9,11 @@ namespace RGBFusionAuroraListener
     public class Listener
     {
         private bool _StopListening = false;
-        private byte _maxCommandLenght;
+        private int _maxCommandLenght;
         private NamedPipeServerStream _namedPipeServerStream;
         public bool Listening { get => !_StopListening; }
 
-        public void Start(string pipeName = "RGBFusionAuroraListener", byte maxCommandLenght = 6)
+        public void Start(string pipeName = "RGBFusionAuroraListener", int maxCommandLenght = 512)
         {
             _maxCommandLenght = maxCommandLenght;
             _namedPipeServerStream = new NamedPipeServerStream(pipeName, PipeDirection.In);
