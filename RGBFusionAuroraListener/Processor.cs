@@ -39,6 +39,10 @@ namespace RGBFusionAuroraListener
                     Thread.Sleep(1000);
                     System.Windows.Forms.Application.Exit();
                     break;
+
+                case 6://Get device led indexes
+                    DeviceController.GetDeviceByType(command.DeviceType)?.GetDeviceIndexes();
+                    break;
             }
         }
     }

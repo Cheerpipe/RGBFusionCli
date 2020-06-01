@@ -27,12 +27,10 @@ namespace RGBFusionAuroraListener
             if (_namedPipeServerStream.IsConnected)
                 _namedPipeServerStream.Disconnect();
             _namedPipeServerStream.Close();
-            
         }
 
         private void GetArgsCallBack(NamedPipeServerStream pipe)
         {
-
             while (!_StopListening)
             {
                 pipe.WaitForConnection();

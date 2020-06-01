@@ -11,7 +11,7 @@ namespace RGBFusionBridge.Device
     {
         void Init();
         void SetLed(Color color, byte ledIndex);
-        HashSet<byte> GetAreaIndexes();
+        HashSet<byte> GetDeviceIndexes();
         void Apply();
         void Cancel();
         bool LedDataChanged();

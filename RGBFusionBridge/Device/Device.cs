@@ -19,7 +19,7 @@ namespace RGBFusionBridge.Device
 
         public HashSet<byte> IgnoreLedIndexes { get => _ignoreLedIndexes; set => _ignoreLedIndexes = value; }
 
-        public HashSet<byte> GetAreaIndexes()
+        public virtual HashSet<byte> GetDeviceIndexes()
         {
             return _ledIndexes;
         }
@@ -122,5 +122,6 @@ namespace RGBFusionBridge.Device
             }
         }
         public abstract void Shutdown();
+
     }
 }

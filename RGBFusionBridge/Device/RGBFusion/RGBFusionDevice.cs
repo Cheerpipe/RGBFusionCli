@@ -19,6 +19,11 @@ namespace RGBFusionBridge.Device.RGBFusion
             _allAreaInfo = _RGBFusionController.Areas;
         }
 
+        public override HashSet<byte> GetDeviceIndexes()
+        {
+            return _RGBFusionController.Areas.Keys.ToHashSet();
+        }
+
         public override void Init()
         {
             _deviceType = DeviceType.RGBFusion;
@@ -60,12 +65,15 @@ namespace RGBFusionBridge.Device.RGBFusion
                 if (!_allAreaInfo.Keys.Contains(areaIndex) || _ignoreLedIndexes.Contains(areaIndex)) //Ignore intermediate area index that don't exists in the motherboard
                     continue;
                 CommUI.Area_class area = _allAreaInfo[areaIndex];
-                SolidColorBrush solidColorBrush = new SolidColorBrush(Color.FromArgb(255, _newLedData[3 * areaIndex], _newLedData[3 * areaIndex + 1], _newLedData[3 * areaIndex + 2]));
+                Color newColor = Color.FromArgb(255, _newLedData[3 * areaIndex], _newLedData[3 * areaIndex + 1], _newLedData[3 * areaIndex + 2]);
+                SolidColorBrush solidColorBrush = new SolidColorBrush(newColor);
                 area.Pattern_info.Type = 0;
                 area.Pattern_info.Bri = 9;
                 area.Pattern_info.Speed = -1;
+                uint currentColor = area.Pattern_info.But_Args[0].Color; //Just a workarround
                 area.Pattern_info.But_Args = CommUI.Get_Color_Sceenes_class_From_Brush(solidColorBrush);
-                applyAreaClasses.Add(area);
+                if (currentColor != area.Pattern_info.But_Args[0].Color) //Just a workarround
+                    applyAreaClasses.Add(area);
             }
             return applyAreaClasses;
         }
