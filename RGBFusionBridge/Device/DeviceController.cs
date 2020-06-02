@@ -37,7 +37,7 @@ namespace RGBFusionBridge.Device
         {
             foreach (IDevice d in _devices)
             {
-                new Task(() => { d.Shutdown(); }).Start();
+                d.Shutdown();
             }
         }
     }
