@@ -76,7 +76,7 @@ namespace RGBFusionAuroraListener
         {
             _listener.Stop();
             DeviceController.Shutdown();
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
             Application.Exit();
         }
     }
