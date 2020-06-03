@@ -14,15 +14,18 @@ namespace RGBFusionBridge.Device.DledPinHeader
         private RGBFusionLoader _RGBFusionController;
         private LedObject _ledObject;
         private DC_DLED _dledController;
-        private Collection_8297 _coll97;
+        private MethodInfo _outputLED;
+        private object _coll97;
+        private List<MCU_8297> _lstM97;
         public Z390DledPinHeaderDevice(RGBFusionLoader rgbFusionController)
         {
             _RGBFusionController = rgbFusionController;
             _ledObject = (LedObject)typeof(Comm_LED_Fun).GetField("LedObj", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_RGBFusionController._ledFun);
-            _coll97 = (Collection_8297)typeof(LedObject).GetField("coll97", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_ledObject);
-            _dledController = (DC_DLED)typeof(MCU_8297).GetField("dcStrip0", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_coll97.lstM97[0]);
+            _coll97 = _coll97 = typeof(LedObject).GetField("coll97", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_ledObject);
+            _lstM97 = (List<MCU_8297>)typeof(LedObject).Assembly.CreateInstance("LedLib2.IT8297.Collection_8297").GetType().GetField("lstM97", BindingFlags.Public | BindingFlags.Instance).GetValue(_coll97);
+            _dledController = (DC_DLED)typeof(MCU_8297).GetField("dcStrip0", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_lstM97[0]);
+             _outputLED = _dledController.GetType().GetMethod("OutputLED", BindingFlags.NonPublic | BindingFlags.Instance);
         }
-
 
         public override void Init()
         {
@@ -31,7 +34,7 @@ namespace RGBFusionBridge.Device.DledPinHeader
                 _ledIndexes.Add(l);
 
             base.Init();
-            _coll97.lstM97[0].Enable_DLedStripCtrl(0, true);
+            _lstM97[0].Enable_DLedStripCtrl(0, true);
             _dledController.ResizeCtrlLen(_ledIndexes.Count);
         }
 
@@ -54,9 +57,8 @@ namespace RGBFusionBridge.Device.DledPinHeader
 
         private void SetColorToDLed()
         {
-            _dledController.OutputLED(_newLedData);
+            _outputLED.Invoke(_dledController, new object[] { _newLedData });
         }
-
 
         public override void Shutdown()
         {

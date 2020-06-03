@@ -38,7 +38,7 @@
     </Reference>
     <Reference Include="LedLib2">
       <HintPath>Libs\LedLib2.dll</HintPath>
-      <Private>True</Private>
+      <Private>False</Private>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
