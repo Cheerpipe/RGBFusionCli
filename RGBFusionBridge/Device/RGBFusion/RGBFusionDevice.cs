@@ -1,4 +1,4 @@
-﻿using SelLEDControl;
+using SelLEDControl;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -64,18 +64,30 @@ namespace RGBFusionBridge.Device.RGBFusion
             {
                 if (!_allAreaInfo.Keys.Contains(areaIndex) || _ignoreLedIndexes.Contains(areaIndex)) //Ignore intermediate area index that don't exists in the motherboard
                     continue;
+
                 CommUI.Area_class area = _allAreaInfo[areaIndex];
+                if (area.Pattern_info.But_Args[0].Color == Color_To_Int(255, _newLedData[3 * areaIndex], _newLedData[3 * areaIndex + 1], _newLedData[3 * areaIndex + 2]))
+                    continue;
+
                 Color newColor = Color.FromArgb(255, _newLedData[3 * areaIndex], _newLedData[3 * areaIndex + 1], _newLedData[3 * areaIndex + 2]);
                 SolidColorBrush solidColorBrush = new SolidColorBrush(newColor);
                 area.Pattern_info.Type = 0;
                 area.Pattern_info.Bri = 9;
                 area.Pattern_info.Speed = -1;
-                uint currentColor = area.Pattern_info.But_Args[0].Color; //Just a workarround
                 area.Pattern_info.But_Args = CommUI.Get_Color_Sceenes_class_From_Brush(solidColorBrush);
-                if (currentColor != area.Pattern_info.But_Args[0].Color) //Just a workarround
-                    applyAreaClasses.Add(area);
+                applyAreaClasses.Add(area);
             }
             return applyAreaClasses;
+        }
+
+        public uint Color_To_Int(Color color)
+        {
+            return (uint)((int)color.A << 24 | (int)color.R << 16 | (int)color.G << 8 | (int)color.B);
+        }
+
+        public uint Color_To_Int(int A, int R, int G, int B)
+        {
+            return (uint)((int)A << 24 | (int)R << 16 | (int)G << 8 | (int)B);
         }
 
         List<CommUI.Area_class> applyAreaClasses = new List<CommUI.Area_class>();
