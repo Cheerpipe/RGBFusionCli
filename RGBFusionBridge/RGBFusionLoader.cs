@@ -238,17 +238,20 @@ namespace RGBFusionBridge
             _ledFun.Apply_ScanPeriphera_Scuuess += CallBackLedFunApplyScanPeripheralSuccess;
             _ledFun.ApplyEZ_Success += CallBackLedFunApplyEzSuccess;
             _ledFun.ApplyAdv_Success += CallBackLedFunApplyAdvSuccess;
+
+            _ledFun.Reboot_Setting(false,false);
+
             _ledFun.Ini_LED_Fun();
+            _ledFun.Set_Sync(false);
             do
             {
                 Thread.Sleep(10);
             }
             while (!_scanDone);
 
-            _ledFun.Current_Mode = 1;
+            //_ledFun.Current_Mode = 1;
+            //_ledFun.Current_Mode = 1;
 
-            _ledFun.Led_Ezsetup_Obj.PoweronStatus = 0;
-            _ledFun.Set_Sync(false);
             FillAllAreaInfo();
             _loaded = true;
         }
