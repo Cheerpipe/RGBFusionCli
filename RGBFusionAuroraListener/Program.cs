@@ -37,7 +37,7 @@ namespace RGBFusionAuroraListener
             if (!_singleInstanceMutex.WaitOne(TimeSpan.Zero, true))
                 return;
 
-            Util.SetPriorityProcessAndThreads(Process.GetCurrentProcess().ProcessName, ProcessPriorityClass.Idle, ThreadPriorityLevel.Lowest);
+            Util.SetPriorityProcessAndThreads(Process.GetCurrentProcess().ProcessName, ProcessPriorityClass.BelowNormal, ThreadPriorityLevel.BelowNormal);
 
             SystemEvents.SessionEnding += SystemEvents_SessionEnding;
 
