@@ -38,6 +38,8 @@ namespace RGBFusionBridge.Device
             foreach (IDevice d in _devices)
             {
                 d.Shutdown();
+                d.Shutdown();
+                d.Shutdown();
             }
         }
     }
