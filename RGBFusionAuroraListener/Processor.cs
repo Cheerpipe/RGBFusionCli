@@ -10,10 +10,12 @@ namespace RGBFusionAuroraListener
     {
         public static void ProcessCommand(byte[] commandsBytes)
         {
-
+            bool _shutingDown = false;
             byte commandCount = commandsBytes[0];
             for (int i = 0; i < commandCount; i++)
             {
+                if (_shutingDown)
+                    return;
                 byte[] commandBytes = new byte[6];
                 Array.Copy(commandsBytes, (i * 6 + 1), commandBytes, 0, 6);
                 Command command = new Command(commandBytes);
@@ -37,12 +39,13 @@ namespace RGBFusionAuroraListener
                         break;
 
                     case 5://Shutdown
-                        Program._listener.Stop();
+                        _shutingDown = true;
                         if (command.DeviceType == DeviceType.Unknown)
                             DeviceController.Shutdown();
                         else
                             DeviceController.GetDeviceByType(command.DeviceType)?.Shutdown();
-                        Thread.Sleep(1000);
+                        Thread.Sleep(200);
+                        Program._listener.Stop();
                         System.Windows.Forms.Application.Exit();
                         break;
 
