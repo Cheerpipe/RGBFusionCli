@@ -12,7 +12,7 @@ namespace RGBFusionBridge.Device.KingstonFury
         private static extern uint MCU_Rw(byte mcuAddr, byte regOffset, byte val, ref byte pVal, byte rw, uint delayTime = 0U);
         private byte _pNull = 0;
         private byte _mcuAddr = 78; //Specific for controlling Kingstom RAM from MCU
-        private int _commandDelay = 10;
+        private int _commandDelay = 5;
         private bool _changingColor = false;
 
         public override void Init()
@@ -58,7 +58,6 @@ namespace RGBFusionBridge.Device.KingstonFury
                 _changingColor = false;
             }
         }
-
 
         private void SendColorToRAM()
         {

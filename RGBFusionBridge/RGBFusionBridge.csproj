@@ -34,19 +34,19 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Gigabyte.ULightingEffects">
-      <HintPath>Libs\Gigabyte.ULightingEffects.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Gigabyte.ULightingEffects, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\GIGABYTE\RGBFusion\Gigabyte.ULightingEffects.dll</HintPath>
     </Reference>
-    <Reference Include="LedLib2">
-      <HintPath>Libs\LedLib2.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="LedLib2, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\GIGABYTE\RGBFusion\LedLib2.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="SelLEDControl">
-      <HintPath>Libs\SelLEDControl.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="SelLEDControl, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\GIGABYTE\RGBFusion\SelLEDControl.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
