@@ -27,9 +27,8 @@ namespace RGBFusionBridge.Device.RGBFusion
         public override void Init()
         {
             _deviceType = DeviceType.RGBFusion;
-
             _ledIndexes = new HashSet<byte>();
-
+            ConfirmLastCommandTimeOut = 15;
 
             for (byte i = 0; i <= _RGBFusionController.Areas.Keys.Max(); i++)
             {
@@ -134,7 +133,7 @@ namespace RGBFusionBridge.Device.RGBFusion
 
         protected override void ConfirmApply()
         {
-            SendColorToRGBFusion();
+            _RGBFusionControllerApplyEvent.Set();
         }
     }
 }
