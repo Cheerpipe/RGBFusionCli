@@ -64,6 +64,7 @@
     <Compile Include="Device\Example\Example.cs" />
     <Compile Include="Device\IDevice.cs" />
     <Compile Include="Device\KingstonFury\KingstonFuryDevice.cs" />
+    <Compile Include="Device\KingstonFury\KingstonRamRegisterMap.cs" />
     <Compile Include="Device\RGBFusion\RGBFusionDevice.cs" />
     <Compile Include="Example.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

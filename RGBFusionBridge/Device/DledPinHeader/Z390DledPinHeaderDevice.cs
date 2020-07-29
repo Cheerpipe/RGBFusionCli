@@ -24,7 +24,7 @@ namespace RGBFusionBridge.Device.DledPinHeader
             _coll97 = _coll97 = typeof(LedObject).GetField("coll97", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_ledObject);
             _lstM97 = (List<MCU_8297>)typeof(LedObject).Assembly.CreateInstance("LedLib2.IT8297.Collection_8297").GetType().GetField("lstM97", BindingFlags.Public | BindingFlags.Instance).GetValue(_coll97);
             _dledController = (DC_DLED)typeof(MCU_8297).GetField("dcStrip0", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_lstM97[0]);
-             _outputLED = _dledController.GetType().GetMethod("OutputLED", BindingFlags.NonPublic | BindingFlags.Instance);
+            _outputLED = _dledController.GetType().GetMethod("OutputLED", BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
         public override void Init()
@@ -63,7 +63,7 @@ namespace RGBFusionBridge.Device.DledPinHeader
         public override void Shutdown()
         {
             for (int p = 0; p < _newLedData.Length; p++) { _newLedData[p] = 0; }
-            Apply();
+            SetColorToDLed();
         }
 
         protected override void ConfirmApply()

@@ -128,7 +128,7 @@ namespace RGBFusionBridge.Device.RGBFusion
         {
             _terminateDeviceThread = true;
             for (int p = 0; p < _newLedData.Length; p++) { _newLedData[p] = 0; }
-            Apply();
+            _RGBFusionControllerApplyEvent.Set();
         }
 
         protected override void ConfirmApply()
