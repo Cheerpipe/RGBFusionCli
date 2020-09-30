@@ -242,15 +242,15 @@ namespace RGBFusionBridge
             _ledFun.Reboot_Setting(false,false);
 
             _ledFun.Ini_LED_Fun();
-            _ledFun.Set_Sync(false);
+            //_ledFun.Set_Sync(false);
             do
             {
-                Thread.Sleep(10);
+                Thread.Sleep(100);
             }
             while (!_scanDone);
 
             //_ledFun.Current_Mode = 1;
-            //_ledFun.Current_Mode = 1;
+            _ledFun.Current_Mode = 0;
 
             FillAllAreaInfo();
             _loaded = true;

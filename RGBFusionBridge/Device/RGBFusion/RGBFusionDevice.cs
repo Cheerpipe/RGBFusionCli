@@ -17,6 +17,8 @@ namespace RGBFusionBridge.Device.RGBFusion
         {
             _RGBFusionController = rgbFusionController;
             _allAreaInfo = _RGBFusionController.Areas;
+     //     _RGBFusionController._ledFun.Set_Ezmode_Direct(LedLib2.LedMode.StillMode, Color.FromArgb(0, 0, 0, 0));
+   //       _RGBFusionController._ledFun.Easy_mode_Apply(LedLib2.LedMode.StillMode, Color.FromArgb(0, 0, 0, 0), false);
         }
 
         public override HashSet<byte> GetDeviceIndexes()
@@ -34,7 +36,6 @@ namespace RGBFusionBridge.Device.RGBFusion
             {
                 _ledIndexes.Add(i);
             }
-
             _RGBFusionControllerThread = new Thread(SetMainboardRingAreas);
             _RGBFusionControllerThread.SetApartmentState(ApartmentState.STA);
             _RGBFusionControllerThread.Start();
@@ -72,7 +73,7 @@ namespace RGBFusionBridge.Device.RGBFusion
                 SolidColorBrush solidColorBrush = new SolidColorBrush(newColor);
                 area.Pattern_info.Type = 0;
                 area.Pattern_info.Bri = 9;
-                area.Pattern_info.Speed = -1;
+                area.Pattern_info.Speed = 2;
                 area.Pattern_info.But_Args = CommUI.Get_Color_Sceenes_class_From_Brush(solidColorBrush);
                 applyAreaClasses.Add(area);
             }
@@ -117,10 +118,21 @@ namespace RGBFusionBridge.Device.RGBFusion
             }
         }
 
+        byte _directInitializedCount = 0;
         private void SendColorToRGBFusion()
         {
             GetAreaClassesFromLedData();
-            _RGBFusionController.RGBFusion.Set_Adv_mode(applyAreaClasses, true);
+            //Workarround to initialize leds in Z490 Aorus Master
+
+        //  if (_directInitializedCount > 10)
+         // {
+                 _RGBFusionController.RGBFusion.Set_Adv_mode(applyAreaClasses, true);
+       //     }
+       //     else
+       //     {
+          //    _RGBFusionController.RGBFusion.Set_Adv_mode(applyAreaClasses, false);
+         // //      _directInitializedCount++;
+           // }
         }
 
         private bool _terminateDeviceThread = false;

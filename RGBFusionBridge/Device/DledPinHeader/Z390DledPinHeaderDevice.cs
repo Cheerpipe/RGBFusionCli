@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using LedLib2.IT8297;
 using System.Drawing;
+using System.Threading;
 
 namespace RGBFusionBridge.Device.DledPinHeader
 {
@@ -43,7 +44,7 @@ namespace RGBFusionBridge.Device.DledPinHeader
 
             base.Init();
 
-            
+
             _lstM97[0].init_dstrip_direct_control(1, _ledIndexes.Count);
             //_lstM97[0].init_dstrip_direct_control(2, _ledIndexes.Count);
 
@@ -90,7 +91,8 @@ namespace RGBFusionBridge.Device.DledPinHeader
         private void SetColorToDLed()
         {
             _outputLED0.Invoke(_lstM97[0], new object[] { _newLedData });
-          //  _outputLED1.Invoke(_lstM97[0], new object[] { _newLedData });
+            //  _outputLED1.Invoke(_lstM97[0], new object[] { _newLedData });
+            Thread.Sleep(2);
         }
 
         public void ResizeCtrlLen(int nLeds)
