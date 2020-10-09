@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using LedLib2.IT8297;
 using System.Drawing;
-using System.Threading;
+using System.Linq;
 
 namespace RGBFusionBridge.Device.DledPinHeader
 {
@@ -39,35 +39,15 @@ namespace RGBFusionBridge.Device.DledPinHeader
         public override void Init()
         {
             _deviceType = DeviceType.DledPinHeader;
-            for (byte l = 0; l < 81; l++)
+            for (byte l = 0; l < 64; l++)
                 _ledIndexes.Add(l);
-
             base.Init();
+            ResizeCtrlLen(_ledIndexes.Count / 2); //requerido
+            _lstM97[0].Enable_DLedStripCtrl(0, true);
+            Apply();
+            _lstM97[0].Enable_DLedStripCtrl(1, true);
+            Apply();
 
-
-            _lstM97[0].init_dstrip_direct_control(1, _ledIndexes.Count);
-            //_lstM97[0].init_dstrip_direct_control(2, _ledIndexes.Count);
-
-
-
-            //            _lstM97[0].StopEffectThread();
-
-            //  _lstM97[0].SetLedEffect(LMode_8297.Static, 22222222, 0, 9, 6, true);
-
-            //_lstM97[0].init_dstrip_direct_control(1, _ledIndexes.Count);
-            //_lstM97[0].init_dstrip_direct_control(2, _ledIndexes.Count);
-
-            //_lstM97[0].TurnOff_DStrip();
-
-            // _lstM97[0].init_dstrip_direct_control(0, 32); //esto arregla el canal 0 para que no parpadee
-            // _lstM97[0].init_dstrip_direct_control(1,32);
-            //_lstM97[0].init_dstrip_direct_control(2, 32);
-            // _ledObject.InitDStripDirectCtrl(0, 32);
-            //_ledObject.InitDStripDirectCtrl(1, _ledIndexes.Count);
-            //_ledObject.DStripDirectControlStart(1);
-            // _ledObject.InitDStripDirectCtrl(2, 32);
-
-            ResizeCtrlLen(_ledIndexes.Count);
 
         }
 
@@ -90,9 +70,11 @@ namespace RGBFusionBridge.Device.DledPinHeader
 
         private void SetColorToDLed()
         {
-            _outputLED0.Invoke(_lstM97[0], new object[] { _newLedData });
-            //  _outputLED1.Invoke(_lstM97[0], new object[] { _newLedData });
-            Thread.Sleep(2);
+            var x1 = _newLedData;
+            var x2 = _newLedData.Skip(0);
+            var x3 = _newLedData.Skip(0).Take(32 * 3).ToArray();
+            _outputLED0.Invoke(_lstM97[0], new object[] { _newLedData.Skip(0).Take(32 * 3).ToArray() }); // bottom
+            _outputLED1.Invoke(_lstM97[0], new object[] { _newLedData.Skip(32 * 3).Take(32 * 3).ToArray() }); // top
         }
 
         public void ResizeCtrlLen(int nLeds)
