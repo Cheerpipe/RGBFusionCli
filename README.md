@@ -1,6 +1,6 @@
 Updated from CheerPipes RGBFusion project.
 
-Source: 
+Source: https://github.com/Cheerpipe/RGBFusionCli
 
 Piped a .EXE from the projects source code since the project didn't include the necessary files for ordinary users to copy/paste the items needed to process the RGB LEDs without downloading visual studio C# and compiling the code from the source.
 
