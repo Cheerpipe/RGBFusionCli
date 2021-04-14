@@ -21,3 +21,14 @@ Now try using Aurora and the RGB should light up for your motherboard/gigabyte p
 Update 4-1-21:
 
 Having trouble with auto opening the RGBFusionCLI program automatically, will work on a fix and update this fork.
+
+
+Update 4-14-21:
+
+Added Start-RGBFusionCli.bat which starts the RGBFusionCLI.exe program on startup. 
+
+All you need to do is, place the .BAT file in the following directory: (copy/paste if needed)  C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
+
+The above folder will start the RGBFusionCLI.exe file on PC startup along with project aurora, and ensure the gigabyte RGBFusion system syncs with aurora
+
+.Bat file located under RGBFusionCli/Startup-Folder of my fork of the project
