@@ -1,3 +1,17 @@
+# End of support notice
+
+This software will not be developed anymore because there are much better and long term alternatives out there.
+
+For control RGB Hardware: https://openrgb.org/
+ * Discord: https://discord.gg/AFX9zqMn
+ * Git: https://gitlab.com/CalcProgrammer1/OpenRGB
+
+For create effects: https://artemis-rgb.com/
+
+ * Discord: https://discord.gg/WVB4SfwC
+ * Git: https://github.com/Artemis-RGB/Artemis
+
+
 # RGBFusionCli
 
 ## Descripción
