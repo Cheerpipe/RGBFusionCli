@@ -1,102 +1,41 @@
-# RGBFusionCli
+Updated from CheerPipes RGBFusion project.
 
-## Descripción
+Source: https://github.com/Cheerpipe/RGBFusionCli
 
-RGBFusionCli es una herramienta muy simple que sirve para cambiar el color, modo, velocidad y brillo de dispositivos compatibles con [Gigabyte's RGB Fusion]
-Para funcionar, `RGBFusionCli` carga e inicializa los componentes internos de [Gigabyte's RGB Fusion] para utilizarlos a modo de HAL debido a que [Gigabyte's RGB Fusion] es capaz de manipular hardware de distintos tipos y marcas.
-Las tareas de inicialización pueden tardar varios segundos. Para evitar que esta demora ocurra cada vez que se aplica un cambio en la iluminación, `RGBFusionCli` inicia sus componentes internos y luego se queda a la espera de comandos enviados por linea de comandos o por un NamedPipe.
-
-## Modos de uso 
-
-Esta utilidad puede ser utilizada de dos maneras distintas:
-
-1. Línea de comandos
-2. Enviando mensajes a un NamedPipe. Este modo fue desarrollado para ser usado con aplicaciones como `Aurora Project` u otras que requieran del envío de comandos rápidamente (hasta 15 comandos por segundo).
-
-## Características
-
-* Bajo uso de CPU.
-* Hasta 15 comandos por segundo usando NamedPipe.
-
-## Dependencias
-
-Esta aplicación depende de `LedLib2.dll` y `SelLEDControl.dll`, ambos parte de la aplicación principal de [Gigabyte's RGB Fusion]. Ambas son necesarias para su compilación.
-	
-## Instalación
-
-Esta aplicación no necesita ser instalada. Solo debes copiar `RGBFusionCli.exe` en la carpeta de [Gigabyte's RGB Fusion Application]. Típicamente `C:\Program Files (x86)\GIGABYTE\RGBFusion`.
+Piped a .EXE from the projects source code since the project didn't include the necessary files for ordinary users to copy/paste the items needed to process the RGB LEDs without downloading visual studio C# and compiling the code from the source.
 
 
-
-### Comandos
-
-Obtener el listado de identificadores de áreas.
-
-```
---areas
-```
-
-Establecer áreas
-
-```
---setarea:<AREA_ID>:<MODE_ID>:<R_VALUE>:<B_VALUE>:<G_VALUE>:<SPEED_VALUE>:<BRIGHT_VALUE>
-```
-
-Donde:
-
-- <AREA_ID>: Número de área. Los identificadores de áreas se pueden obtener con el comando `--areas` o usar `-1` para establecer todas las áreas. Si se usa el área -1, el parámetro `<MODE_ID>` será ignorado.
-- <MODE_ID>: Valor numérico que establece el modo de operación del área. Ver  **Identificadores de modo**
-- <R_VALUE>: Valor entre 0 y 255 que representa el color rojo.
-- <G_VALUE>: Valor entre 0 y 255 que representa el color verde.
-- <B_VALUE>: Valor entre 0 y 255 que representa el color azul.
-- <SPEED_VALUE>: OPCIONAL (Valor predeterminado es 5) Valor entre 0 y 9 que representa la velocidad de la animación si se usa un modo animado.
-- <BRIGHT_VALUE>: OPCIONAL (Valor predeterminado es 9) Valor entre 0 y 9 que representa el nivel de brillo del área. 
-
-```
---loadprofile: <PROFILE_ID>
-```
-Donde:
-
-- <PROFILE_ID>: Número de perfil de  [Gigabyte's RGB Fusion] que se desea cargar.
-
- **Identificadores de modo:**
-- Still = 0;
-- Breath = 1;
-- Beat = 2;
-- MixColor = 3;
-- Flash = 4;
-- Random = 5;
-- Wave = 6;
-- Scenes = 7;
-- off = 8;
-- auto = 9;
-- other = 10;
-- DFlash = 11;
+Instructions:
 
 
-## Transacciones
+To install first have RGBFusion B19.0919.1 installed on machine (uninstall any other version) .ZIP included in fork.
 
-RGBFusionCli permite enviar la ejecución de comandos enviados de manera secuencial somo si fuese un solo comando a través del uso de transacciones. Para esto es necesario ejecutar la siguiente secuencia de comandos:
+Now, copy the RGBFusionCLI.EXE and RGBFusionCLI.exe.config to the C:\Program Files (x86)\GIGABYTE\RGBFusion folder
 
-```
---transactionstart
+Then copy all the .CS files to the C:\Program Files\Aurora\Scripts\Devices folder (if Scripts doesnt exist, make the folder, and make a child folder "devices")
 
-<SET AREAS COMMANDS>
 
---transactioncommit
-```
+Now try using Aurora and the RGB should light up for your motherboard/gigabyte peripherals.
 
-El comando `--transactionstart` iniciará el modo transaccional, luego de esto, todos los comandos que se envien serán encolados y ejecutados como si fuese un comando único al ejecutar el comando `--transactioncommit`.
 
-Ejemplo:
+Update 4-1-21:
 
-```
---transactionstart        	<- Inicia el modo transacción
---setarea:0:0:255:0:0     	<- Crea un comando de cambio de color y lo encola.
---setarea:2:0:0:255:0		<- Crea un comando de cambio de color y lo encola.
---setarea:4:0:0:0:255		<- Crea un comando de cambio de color y lo encola.
---setarea:6:0:0:255:255		<- Crea un comando de cambio de color y lo encola.
---transactioncommit		<- Aplica todos los comandos enviados desde el inicio de la transacción y termina el modo trandacción.
-```
+Having trouble with auto opening the RGBFusionCLI program automatically, will work on a fix and update this fork.
 
-Es importante destacar que no todas las áreas son compatibles con todos los modos. Tendrás que probar y ver que modos funcionan para cada área.
+
+Update 4-14-21:
+
+Added Start-RGBFusionCli.bat which starts the RGBFusionCLI.exe program on startup. 
+
+All you need to do is, place the .BAT file in the following directory: (copy/paste if needed)  C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
+
+The above folder will start the RGBFusionCLI.exe file on PC startup along with project aurora, and ensure the gigabyte RGBFusion system syncs with aurora
+
+.Bat file located under RGBFusionCli/Startup-Folder of my fork of the project
+
+
+Update 6-2-21:
+
+Added RGB_Fusion_B21.0113.1.zip to fork to ensure any issues with the program are resolved with a working version of RGBFusion. 
+
+As newer versions of RGBFusion do not work at all with the CLI program, they don't detect any RGB lights, even after a reboot of the workstation.
