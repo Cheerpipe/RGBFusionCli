@@ -32,3 +32,10 @@ All you need to do is, place the .BAT file in the following directory: (copy/pas
 The above folder will start the RGBFusionCLI.exe file on PC startup along with project aurora, and ensure the gigabyte RGBFusion system syncs with aurora
 
 .Bat file located under RGBFusionCli/Startup-Folder of my fork of the project
+
+
+Update 6-2-21:
+
+Added RGB_Fusion_B21.0113.1.zip to fork to ensure any issues with the program are resolved with a working version of RGBFusion. 
+
+As newer versions of RGBFusion do not work at all with the CLI program, they don't detect any RGB lights, even after a reboot of the workstation.
